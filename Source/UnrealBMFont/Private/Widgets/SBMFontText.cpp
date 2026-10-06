@@ -12,7 +12,6 @@
 void SBMFontText::Construct(const FArguments& InArgs)
 {
 	Text = InArgs._Text;
-	FontAsset = InArgs._FontAsset;
 	ColorAndOpacity = InArgs._ColorAndOpacity;
 	FontScale = FMath::Max(InArgs._FontScale, 0.001f);
 	LetterSpacing = InArgs._LetterSpacing;
@@ -27,10 +26,32 @@ void SBMFontText::Construct(const FArguments& InArgs)
 	ShadowOffset = InArgs._ShadowOffset;
 	ShadowColorAndOpacity = InArgs._ShadowColorAndOpacity;
 	bPixelSnapping = InArgs._PixelSnapping;
+	SetFontAsset(InArgs._FontAsset);
 #if WITH_ACCESSIBILITY
 	AccessibleBehavior = EAccessibleBehavior::Auto;
 	bCanChildrenBeAccessible = false;
 #endif
+}
+
+SBMFontText::~SBMFontText()
+{
+	if (UBMFontAsset* Font = FontAsset.Get())
+	{
+		Font->OnChanged().Remove(FontChangedHandle);
+	}
+}
+
+void SBMFontText::HandleFontChanged(EBMFontAssetChange Change)
+{
+	if (Change == EBMFontAssetChange::Metrics)
+	{
+		InvalidateLayout();
+		Invalidate(EInvalidateWidgetReason::Prepass);
+	}
+	else
+	{
+		Invalidate(EInvalidateWidgetReason::Paint);
+	}
 }
 
 void SBMFontText::SetText(TAttribute<FText> InText)
@@ -43,7 +64,16 @@ void SBMFontText::SetFontAsset(UBMFontAsset* InFontAsset)
 {
 	if (FontAsset.Get() != InFontAsset)
 	{
+		if (UBMFontAsset* Previous = FontAsset.Get())
+		{
+			Previous->OnChanged().Remove(FontChangedHandle);
+		}
 		FontAsset = InFontAsset;
+		FontChangedHandle.Reset();
+		if (InFontAsset != nullptr)
+		{
+			FontChangedHandle = InFontAsset->OnChanged().AddSP(this, &SBMFontText::HandleFontChanged);
+		}
 		InvalidateLayout();
 		BrushFontAsset.Reset();
 		GlyphBrushes.Reset();
@@ -189,6 +219,13 @@ int32 SBMFontText::GetCachedGlyphBrushCountForTesting(const float AvailableWidth
 	EnsureLayout(AvailableWidth);
 	EnsureBrushes();
 	return GlyphBrushes.Num();
+}
+
+UObject* SBMFontText::GetCachedGlyphResourceForTesting(const int32 Codepoint) const
+{
+	EnsureBrushes();
+	const FSlateBrush* Brush = GlyphBrushes.Find(Codepoint);
+	return Brush != nullptr ? Brush->GetResourceObject() : nullptr;
 }
 #endif
 
@@ -365,7 +402,9 @@ void SBMFontText::EnsureBrushes() const
 {
 	UBMFontAsset* Font = FontAsset.Get();
 	const uint32 CurrentRevision = Font != nullptr ? Font->GetDataRevision() : 0;
-	const bool bFontCacheChanged = BrushFontAsset.Get() != Font || BrushDataRevision != CurrentRevision;
+	const uint32 ResourceRevision = Font != nullptr ? Font->GetRenderResourceRevision() : 0;
+	const bool bFontCacheChanged = BrushFontAsset.Get() != Font || BrushDataRevision != CurrentRevision
+		|| BrushResourceRevision != ResourceRevision;
 	if (!bFontCacheChanged && BrushLayoutRevision == LayoutRevision)
 	{
 		return;
@@ -374,6 +413,7 @@ void SBMFontText::EnsureBrushes() const
 	GlyphBrushes.Reset();
 	BrushFontAsset = Font;
 	BrushDataRevision = CurrentRevision;
+	BrushResourceRevision = ResourceRevision;
 	BrushLayoutRevision = LayoutRevision;
 	if (Font == nullptr || !Font->FontData.IsValid())
 	{

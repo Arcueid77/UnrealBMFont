@@ -16,6 +16,8 @@ The `UnrealBMFont.*` suite covers:
 - UI texture defaults, source path tracking, transactional multi-page reimport/rollback, and preservation of user-edited texture filtering.
 - Slate desired-size calculation and invalidation after text changes.
 - Layout-scoped brush creation against a generated 20,000-glyph asset.
+- Asset metric notifications, Slate reconstruction, packed material recovery and raw Slate weak-reference garbage collection.
+- Resource-only brush invalidation in existing rich-text runs and the schema GUID in saved packages.
 - Rich text run measurement through `UBMFontRichTextBlock`, including kerning, fallback, tagged and empty runs, runtime font assignment, inherited foreground colors, shadow bounds, and screenshot coverage for parent-clipped ellipsis painting.
 - Packed-channel mapping, packed import/reimport through `UBMFontFactory`, packaged material dependency on real save, and render-resource separation by page and glyph channel.
 
@@ -82,15 +84,23 @@ pwsh ./Scripts/TestPackagedRuntime.ps1 `
   -PluginPackage "$env:TEMP\UnrealBMFont-Package"
 ```
 
-The script generates a clean C++ RuntimeHost in a unique temporary work directory outside the repository, copies only the audited BuildPlugin package, then builds, cooks, packages, and launches Development and Shipping configurations. Each launch writes a deterministic marker proving that `UBMFontText` was instantiated and `/UnrealBMFont/M_BMFontPacked` loaded from cooked content. An explicit `-WorkDirectory` is accepted only when the path does not already exist, preventing stale markers or archives from satisfying a new run; retain the generated `Evidence` directory with release records.
+The script generates the [runnable showcase](../Examples/Showcase/README.md) outside the repository, imports and saves real fixtures, and cooks the showcase map's asset dependencies. It does not force-cook the plugin directory. Development and Shipping launch on a real GPU and compare plain, packed, multi-page and Rich Text pixels against independently specified fixture masks. Each configuration writes four probe PNGs, a full `Showcase.png`, and `result.json`; missing cases, mismatched pixels, missing assets and NullRHI all fail. An explicit `-WorkDirectory` must not already exist, preventing stale evidence from satisfying a new run. Keep the complete `Evidence` directory, including the import/build/cook logs.
+
+The default headless automation still skips GPU screenshot cases. Run a second pass with `-DisableNullRHI -TestFilter 'UnrealBMFont.Render' -Strict` to require actual rendering. `-Strict` also rejects warning results; every mode rejects incomplete reports.
+
+## Final release validation
+
+`Scripts/TestRelease.ps1` runs package audits, both packaged GPU configurations, full automation and GPU automation for each supplied engine. Final mode requires a clean commit and at least one complete Win64 engine build; a source build is sufficient. Every supplied build must pass. It records each engine's version and installed-build marker, checks that the source commit and input fingerprint stay unchanged, and writes `release-evidence.json`. Development runs with `-CandidateOnly`, prerelease versions and beta descriptors explicitly remain non-release evidence even when `AutomatedGatesPassed` is true. See [ReleaseReadiness.md](ReleaseReadiness.md).
+
+`Scripts/TestScriptGuards.ps1` exercises output-tree, stale-directory and empty-configuration rejection without starting a build. Supply the reference engine and a built plugin package. `Scripts/TestAssetUpgrade.py` checks a copied beta asset across two Editor processes; see [Upgrading.md](Upgrading.md).
 
 ## GitHub Actions
 
-The dependency-free repository validation job runs on every push and pull request. The UE 5.8 build and automation job is opt-in because GitHub-hosted runners do not include Unreal Engine.
+The dependency-free repository validation job runs on every push and pull request. The development UE 5.8 job is opt-in; pull requests never execute on its persistent self-hosted runner. Its green metadata result is not final release approval.
 
 To enable the Unreal job, register a Windows x64 self-hosted runner with the `ue-5.8` label, then set these repository variables:
 
 - `UE_CI_ENABLED=true`
 - `UE_ROOT` to the Unreal Engine 5.8 installation or source-tree root on that runner
 
-Set `UE_GPU_CI_ENABLED=true` only when that runner has a usable GPU and reference-compatible driver. The Unreal job always runs BuildPlugin, NullRHI automation, and Development/Shipping packaged-runtime verification; the GPU variable adds `UnrealBMFont.Render.*` screenshot comparison.
+The runner now needs a usable GPU for packaged pixel validation. `UE_GPU_CI_ENABLED=true` adds the Editor screenshot suite to the development job. The separate manually dispatched `Release validation` workflow requires at least one complete engine build and every GPU/package gate; it has no optional GPU skip and never publishes a release automatically.

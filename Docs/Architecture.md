@@ -39,7 +39,7 @@ flowchart LR
 
 ## Data ownership
 
-`UBMFontAsset` owns descriptor metadata and hard references to imported page textures. It also maintains a non-serialized kerning lookup and a data revision used by Slate caches. Reimport replaces the serializable model, rebuilds the lookup, and invalidates layout/brush caches through that revision.
+`UBMFontAsset` owns descriptor metadata and hard references to imported page textures. It also maintains a non-serialized kerning lookup, metric/resource revisions and a native change notification. Reimport replaces the serializable model, rebuilds the lookup and explicitly invalidates subscribed widget layouts, including cached trees that would not otherwise paint. Material recovery advances a separate resource revision and invalidates paint without redoing glyph metrics. See [API.md](API.md) for ownership, mutation and serialized-schema contracts.
 
 ## Layout model
 
@@ -49,7 +49,7 @@ Layout decodes Unicode scalar values, resolves fallback glyphs, applies pair ker
 
 `SBMFontText` is an `SLeafWidget`. Layout is cached by text, font data revision, settings, and resolved wrapping width. Its brush cache is keyed by layout revision and contains only the distinct glyphs used by that layout, so changing a short string in a large CJK asset does not rebuild brushes for the entire font. `OnPaint` still performs a constant-time revision check before using the cache. All glyphs on the same texture/layer remain eligible for Slate batching.
 
-Packed-channel glyphs render through `UMaterialInstanceDynamic` resources created from the asset's packed render material (default: the plugin's `M_BMFontPacked`). The base material is resolved when packed data is assigned, loaded, or edited rather than during the normal first paint. If that lifecycle load is temporarily unavailable, the first render-resource request retries once; later requests can also adopt the same soft object if another system loads it. Failed attempts remain bounded so a missing material cannot trigger synchronous loading once per glyph or paint. The asset caches material instances by page ID and glyph channel mask. Each instance receives the page texture and channel mapping computed from `char.chnl` plus the common channel metadata, while Slate's vertex color continues to apply tint and shadow. Non-packed pages keep the plain texture path.
+Packed-channel glyphs render through `UMaterialInstanceDynamic` resources created from the asset's packed render material (default: the plugin's `M_BMFontPacked`). The base material is resolved when packed data is assigned, loaded, or edited rather than during the normal first paint. If that lifecycle load is temporarily unavailable, the first render-resource request retries once. Unresolved assets then check only the already-loaded soft object at 4 Hz, without IO; recovery stops polling, advances the resource revision and queues a non-reentrant paint notification. Failed loads cannot trigger synchronous loading once per glyph or paint. The asset caches material instances by page ID and glyph channel mask. Each instance receives the page texture and channel mapping computed from `char.chnl` plus the common channel metadata, while Slate's vertex color continues to apply tint and shadow. Non-packed pages keep the plain texture path.
 
 ## Text model
 

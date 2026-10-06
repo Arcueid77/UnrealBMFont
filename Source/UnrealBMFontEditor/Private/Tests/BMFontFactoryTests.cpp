@@ -8,6 +8,7 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/IAssetRegistry.h"
 #include "BMFontAsset.h"
+#include "BMFontCustomVersion.h"
 #include "EditorFramework/AssetImportData.h"
 #include "Engine/Texture2D.h"
 #include "HAL/FileManager.h"
@@ -21,6 +22,7 @@
 #include "ObjectTools.h"
 #include "Thumbnail/BMFontThumbnailRenderer.h"
 #include "UObject/Package.h"
+#include "UObject/PackageFileSummary.h"
 #include "UObject/SavePackage.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -759,6 +761,19 @@ bool FBMFontFactoryRealPackageSaveTest::RunTest(const FString& Parameters)
 		return false;
 	}
 	TestFalse(TEXT("PreSave restores a cleared default packed material reference"), Asset->PackedRenderMaterial.IsNull());
+	TUniquePtr<FArchive> PackageReader(IFileManager::Get().CreateFileReader(*PackageFilename));
+	if (TestNotNull(TEXT("Saved package header is readable"), PackageReader.Get()))
+	{
+		FPackageFileSummary Summary;
+		*PackageReader << Summary;
+		const FCustomVersion* Version = Summary.GetCustomVersionContainer().GetVersion(FBMFontCustomVersion::GUID);
+		if (TestNotNull(TEXT("Disk package records the BMFont schema GUID"), Version))
+		{
+			TestEqual(TEXT("Disk package records the current BMFont schema"), Version->Version,
+				static_cast<int32>(FBMFontCustomVersion::LatestVersion));
+		}
+	}
+	PackageReader.Reset();
 
 	// The packed material reference must reach the asset registry on save, or cooks will
 	// never include it (a CDO default is delta-serialized away and never lands here).

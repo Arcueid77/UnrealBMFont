@@ -1,0 +1,47 @@
+name: Release validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  configuration:
+    name: Require release configuration
+    runs-on: ubuntu-latest
+    env:
+      ENGINE_ROOTS: ${{ vars.UE_RELEASE_ENGINE_ROOTS }}
+    steps:
+      - name: Require explicitly configured engine builds
+        run: |
+          python - <<'PY'
+          import json, os
+          roots = json.loads(os.environ.get('ENGINE_ROOTS') or '[]')
+          assert isinstance(roots, list) and len(roots) >= 1 and all(isinstance(x, str) and x.strip() for x in roots), 'Set UE_RELEASE_ENGINE_ROOTS to a nonempty JSON array of complete engine build roots; one source build is sufficient.'
+          PY
+
+  verification:
+    name: Required engine, GPU and packaged-asset gates
+    needs: configuration
+    runs-on: [self-hosted, windows, x64, ue-release, gpu]
+    timeout-minutes: 180
+    env:
+      UE_SKIP_UBT_SDK_SETUP: '1'
+      ENGINE_ROOTS: ${{ vars.UE_RELEASE_ENGINE_ROOTS }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Validate exact release candidate
+        shell: pwsh
+        run: |
+          $roots = @($env:ENGINE_ROOTS | ConvertFrom-Json)
+          ./Scripts/TestRelease.ps1 -EngineRoots $roots -OutputDirectory '${{ runner.temp }}\BMFont-Release-${{ github.run_id }}-${{ github.run_attempt }}'
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: Release-validation-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}\BMFont-Release-${{ github.run_id }}-${{ github.run_attempt }}\release-evidence.json
+            ${{ runner.temp }}\BMFont-Release-${{ github.run_id }}-${{ github.run_attempt }}\**\Evidence\**
+            ${{ runner.temp }}\BMFont-Release-${{ github.run_id }}-${{ github.run_attempt }}\**\Automation\**
+            ${{ runner.temp }}\BMFont-Release-${{ github.run_id }}-${{ github.run_attempt }}\**\GPU\**

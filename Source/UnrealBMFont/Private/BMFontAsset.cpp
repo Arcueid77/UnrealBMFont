@@ -3,6 +3,7 @@
 #include "BMFontAsset.h"
 
 #include "BMFontRendering.h"
+#include "BMFontCustomVersion.h"
 #include "Engine/Texture2D.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UnrealBMFontModule.h"
@@ -160,6 +161,30 @@ void UBMFontAsset::SetFontData(FBMFontData InFontData)
 	EnsurePackedRenderMaterialLoaded();
 	RebuildLookup();
 	++DataRevision;
+	ChangedEvent.Broadcast(EBMFontAssetChange::Metrics);
+}
+
+void UBMFontAsset::SetPackedRenderMaterial(TSoftObjectPtr<UMaterialInterface> InMaterial)
+{
+	PackedRenderMaterial = MoveTemp(InMaterial);
+	EnsurePackedRenderMaterialReference();
+	ClearRenderResourceCache();
+	EnsurePackedRenderMaterialLoaded();
+	ChangedEvent.Broadcast(EBMFontAssetChange::RenderResources);
+}
+
+void UBMFontAsset::Serialize(FArchive& Ar)
+{
+	Ar.UsingCustomVersion(FBMFontCustomVersion::GUID);
+	Super::Serialize(Ar);
+}
+
+void UBMFontAsset::BeginDestroy()
+{
+	FTSTicker::RemoveTicker(MaterialRecoveryHandle);
+	FTSTicker::RemoveTicker(ResourceNotificationHandle);
+	ChangedEvent.Clear();
+	Super::BeginDestroy();
 }
 
 void UBMFontAsset::PreSave(FObjectPreSaveContext ObjectSaveContext)
@@ -177,6 +202,17 @@ void UBMFontAsset::PostLoad()
 }
 
 #if WITH_EDITOR
+void UBMFontAsset::PostEditUndo()
+{
+	Super::PostEditUndo();
+	EnsurePackedRenderMaterialReference();
+	ClearRenderResourceCache();
+	EnsurePackedRenderMaterialLoaded();
+	RebuildLookup();
+	++DataRevision;
+	ChangedEvent.Broadcast(EBMFontAssetChange::Metrics);
+}
+
 void UBMFontAsset::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -185,6 +221,7 @@ void UBMFontAsset::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 	EnsurePackedRenderMaterialLoaded();
 	RebuildLookup();
 	++DataRevision;
+	ChangedEvent.Broadcast(EBMFontAssetChange::Metrics);
 }
 #endif
 
@@ -208,7 +245,7 @@ void UBMFontAsset::EnsurePackedRenderMaterialLoaded(const bool bAllowRenderRetry
 	EnsurePackedRenderMaterialReference();
 	if (UMaterialInterface* ResolvedMaterial = PackedRenderMaterial.Get())
 	{
-		LoadedPackedRenderMaterial = ResolvedMaterial;
+		AdoptPackedRenderMaterial(ResolvedMaterial);
 		return;
 	}
 
@@ -220,7 +257,52 @@ void UBMFontAsset::EnsurePackedRenderMaterialLoaded(const bool bAllowRenderRetry
 
 	bPackedMaterialLoadAttempted = true;
 	bPackedMaterialRenderRetryAttempted |= bAllowRenderRetry;
-	LoadedPackedRenderMaterial = PackedRenderMaterial.LoadSynchronous();
+	AdoptPackedRenderMaterial(PackedRenderMaterial.LoadSynchronous());
+	if (LoadedPackedRenderMaterial == nullptr && !MaterialRecoveryHandle.IsValid())
+	{
+		// Available in Editor and Shipping alike. Only unresolved assets poll, at 4 Hz;
+		// Get() never performs IO, and successful recovery unregisters this ticker.
+		MaterialRecoveryHandle = FTSTicker::GetCoreTicker().AddTicker(
+			FTickerDelegate::CreateWeakLambda(this, [this](float)
+			{
+				if (UMaterialInterface* Material = PackedRenderMaterial.Get())
+				{
+					MaterialRecoveryHandle.Reset();
+					AdoptPackedRenderMaterial(Material);
+					return false;
+				}
+				return true;
+			}), 0.25f);
+	}
+}
+
+void UBMFontAsset::RefreshRenderResources()
+{
+	EnsurePackedRenderMaterialLoaded();
+}
+
+void UBMFontAsset::AdoptPackedRenderMaterial(UMaterialInterface* Material)
+{
+	if (Material == nullptr || LoadedPackedRenderMaterial == Material)
+	{
+		return;
+	}
+	LoadedPackedRenderMaterial = Material;
+	++RenderResourceRevision;
+	FTSTicker::RemoveTicker(MaterialRecoveryHandle);
+	MaterialRecoveryHandle.Reset();
+	// Loading can complete inside a paint/resource request. Notify next tick so a rich
+	// text listener never re-marshals and destroys runs while their OnPaint is active.
+	if (!ResourceNotificationHandle.IsValid())
+	{
+		ResourceNotificationHandle = FTSTicker::GetCoreTicker().AddTicker(
+			FTickerDelegate::CreateWeakLambda(this, [this](float)
+			{
+				ResourceNotificationHandle.Reset();
+				ChangedEvent.Broadcast(EBMFontAssetChange::RenderResources);
+				return false;
+			}));
+	}
 }
 
 void UBMFontAsset::RebuildLookup()
@@ -235,6 +317,11 @@ void UBMFontAsset::RebuildLookup()
 
 void UBMFontAsset::ClearRenderResourceCache()
 {
+	FTSTicker::RemoveTicker(MaterialRecoveryHandle);
+	MaterialRecoveryHandle.Reset();
+	FTSTicker::RemoveTicker(ResourceNotificationHandle);
+	ResourceNotificationHandle.Reset();
+	++RenderResourceRevision;
 	PageMaterialCache.Reset();
 	PageMaterialSources.Reset();
 	LoadedPackedRenderMaterial = nullptr;

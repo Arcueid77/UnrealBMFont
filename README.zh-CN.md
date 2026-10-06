@@ -6,9 +6,11 @@
 
 Unreal BMFont 用于导入 AngelCode BMFont 描述文件，并在 Slate / UMG 中渲染位图字形。核心控件是为 BMFont 专门设计的普通文本控件，可以把它理解为 `UTextBlock` 的位图字体版本，并使用精简的专用布局与渲染管线。
 
-插件当前版本为 Beta `0.3.0`。Runtime API 已保持精简可用，但不会宣称支持尚未验证的引擎版本和平台。
+当前工作版本为正在准备发布的 `1.0.0`，初始支持范围为 UE 5.8.0 源码构建 / Win64。已验证项目与剩余门槛见[发布准备状态](Docs/ReleaseReadiness.md)。
 
 [English](README.md) · [格式支持](Docs/FormatSupport.md) · [架构](Docs/Architecture.md) · [测试](Docs/Testing.md)
+
+[可运行示例](Examples/Showcase/README.md) · [公开 API](Docs/API.md) · [升级说明](Docs/Upgrading.md)
 
 ![Unreal BMFont 多语言运行时展示](Docs/Images/showcase-runtime.png)
 
@@ -29,10 +31,10 @@ Unreal BMFont 用于导入 AngelCode BMFont 描述文件，并在 Slate / UMG �
 
 ## 环境要求
 
-- Unreal Engine 5.8
+- Unreal Engine 5.8.0 源码构建（已验证的参考环境）
 - C++ 项目，或已预编译的插件包
 
-目前完整验证的平台是 Win64。其它版本和平台请先查看[兼容性说明](Docs/Compatibility.md)。
+目前完整验证的平台是 Win64。Launcher 发行版和其它引擎版本需要另行验证；预编译二进制须与目标引擎构建匹配，详见[兼容性说明](Docs/Compatibility.md)。
 
 ## 安装
 

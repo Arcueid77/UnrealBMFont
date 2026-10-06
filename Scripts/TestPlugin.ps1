@@ -14,7 +14,9 @@ param(
 
 	[string]$TestFilter = 'UnrealBMFont',
 
-	[switch]$DisableNullRHI
+	[switch]$DisableNullRHI,
+
+	[switch]$Strict
 )
 
 $ErrorActionPreference = 'Stop'
@@ -111,9 +113,17 @@ $executedCount = [int]$report.succeeded + [int]$report.succeededWithWarnings + [
 if ($executedCount -eq 0) {
 	throw "No tests matched '$TestFilter'. See $reportFile"
 }
-if ([int]$report.failed -gt 0 -or [int]$report.notRun -gt 0) {
+if ([int]$report.failed -gt 0 -or [int]$report.notRun -gt 0 -or [int]$report.inProcess -gt 0 -or
+	@($report.tests | Where-Object { $_.state -ne 'Success' }).Count -gt 0) {
 	$failedNames = @($report.tests | Where-Object { $_.state -ne 'Success' } | ForEach-Object { $_.fullTestPath })
 	throw "Automation failed: $($failedNames -join ', '). See $reportFile"
+}
+
+if ($Strict -and [int]$report.succeededWithWarnings -gt 0) {
+	throw "Strict automation rejects warning results. See $reportFile"
+}
+if ($Strict -and $DisableNullRHI -and (Select-String -LiteralPath @($reportFile, $fullLogFile) -Pattern '(?i)skip.+NullRHI|NullRHI.+skip' -Quiet)) {
+	throw "GPU automation unexpectedly skipped rendering tests. See $reportFile"
 }
 
 Write-Host "Automation passed: $executedCount test(s), $($report.succeededWithWarnings) warning result(s)."

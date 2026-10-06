@@ -9,6 +9,7 @@
 #include "Widgets/SLeafWidget.h"
 
 class UBMFontAsset;
+enum class EBMFontAssetChange : uint8;
 
 /** Cache-aware Slate leaf widget used by UBMFontText and C++ Slate callers. */
 class UNREALBMFONT_API SBMFontText final : public SLeafWidget
@@ -53,6 +54,7 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
+	virtual ~SBMFontText() override;
 
 	void SetText(TAttribute<FText> InText);
 	void SetFontAsset(UBMFontAsset* InFontAsset);
@@ -75,6 +77,7 @@ public:
 	const FBMFontLayoutResult& GetCachedLayout(float AvailableWidth) const;
 #if WITH_DEV_AUTOMATION_TESTS
 	int32 GetCachedGlyphBrushCountForTesting(float AvailableWidth) const;
+	UObject* GetCachedGlyphResourceForTesting(int32 Codepoint) const;
 #endif
 
 protected:
@@ -95,6 +98,7 @@ protected:
 
 private:
 	void InvalidateLayout();
+	void HandleFontChanged(EBMFontAssetChange Change);
 	void EnsureLayout(float AvailableWidth) const;
 	void EnsureBrushes() const;
 	float ResolveWrapWidth(float AvailableWidth) const;
@@ -102,6 +106,7 @@ private:
 
 	TAttribute<FText> Text;
 	TWeakObjectPtr<UBMFontAsset> FontAsset;
+	FDelegateHandle FontChangedHandle;
 	TAttribute<FSlateColor> ColorAndOpacity;
 	float FontScale = 1.0f;
 	float LetterSpacing = 0.0f;
@@ -128,5 +133,6 @@ private:
 	mutable TMap<int32, FSlateBrush> GlyphBrushes;
 	mutable TWeakObjectPtr<UBMFontAsset> BrushFontAsset;
 	mutable uint32 BrushDataRevision = 0;
+	mutable uint32 BrushResourceRevision = 0;
 	mutable uint64 BrushLayoutRevision = MAX_uint64;
 };

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import struct
+import subprocess
 import sys
 from pathlib import Path
 
@@ -52,6 +53,9 @@ REQUIRED_FILES = {
     "THIRD_PARTY_NOTICES.md",
     "Config/FilterPlugin.ini",
     "Docs/Architecture.md",
+    "Docs/API.md",
+    "Docs/Upgrading.md",
+    "Docs/ReleaseReadiness.md",
     "Docs/Compatibility.md",
     "Docs/FormatSupport.md",
     "Docs/ReleaseChecklist.md",
@@ -72,6 +76,17 @@ REQUIRED_FILES = {
     "Scripts/BuildPlugin.ps1",
     "Scripts/TestPackagedRuntime.ps1",
     "Scripts/TestPlugin.ps1",
+    "Scripts/TestRelease.ps1",
+    "Scripts/CreateExampleProject.ps1",
+    "Scripts/GenerateMultiPageFixtures.py",
+    "Scripts/PrepareExampleAssets.py",
+    "Scripts/TestAssetUpgrade.py",
+    "Scripts/TestScriptGuards.ps1",
+    ".github/workflows/release-validation.yml",
+    "Examples/Showcase/BMFontExample.uproject",
+    "Samples/MultiPage/MultiPage.fnt",
+    "Samples/MultiPage/Page0.png",
+    "Samples/MultiPage/Page1.png",
     "UnrealBMFont.uplugin",
 }
 
@@ -126,9 +141,11 @@ def main() -> int:
         fail(errors, "Version must be a positive integer")
     version_name = descriptor.get("VersionName")
     if not isinstance(version_name, str) or re.fullmatch(
-        r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", version_name
+        r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?", version_name
     ) is None:
-        fail(errors, "VersionName must be a three-component semantic version")
+        fail(errors, "VersionName must be a semantic version, optionally with a prerelease suffix")
+    if isinstance(version_name, str) and "-" in version_name and descriptor.get("IsBetaVersion") is not True:
+        fail(errors, "Prerelease candidates must keep IsBetaVersion=true")
     if descriptor.get("EnabledByDefault") is not False:
         fail(
             errors,
@@ -141,11 +158,11 @@ def main() -> int:
                 fail(errors, f"{readme_name}: does not identify the descriptor version {version_name}")
         changelog_text = read_text_if_file(errors, "CHANGELOG.md")
         release_heading = re.compile(
-            rf"^## \[{re.escape(version_name)}\] - \d{{4}}-\d{{2}}-\d{{2}}$",
+            rf"^## \[{re.escape(version_name)}\] - (?:\d{{4}}-\d{{2}}-\d{{2}}|Unreleased)$",
             re.MULTILINE,
         )
         if changelog_text is not None and release_heading.search(changelog_text) is None:
-            fail(errors, f"CHANGELOG.md: missing a dated {version_name} release section")
+            fail(errors, f"CHANGELOG.md: missing a dated or Unreleased {version_name} section")
     expected_modules = [
         ("UnrealBMFont", "Runtime"),
         ("UnrealBMFontEditor", "Editor"),
@@ -212,6 +229,13 @@ def main() -> int:
                 fail(errors, f"{relative_path}: expected {expected}, got {actual}")
         except (OSError, ValueError) as error:
             fail(errors, f"{relative_path}: {error}")
+
+    fixture_generator = ROOT / "Scripts" / "GenerateMultiPageFixtures.py"
+    if fixture_generator.is_file():
+        fixture_check = subprocess.run([sys.executable, str(fixture_generator), "--check"],
+                                       capture_output=True, text=True, check=False)
+        if fixture_check.returncode != 0:
+            fail(errors, fixture_check.stderr.strip() or fixture_check.stdout.strip())
 
     if errors:
         for error in errors:

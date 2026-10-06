@@ -19,7 +19,8 @@ jobs:
 
   unreal:
     name: UE 5.8 / Win64
-    if: ${{ vars.UE_CI_ENABLED == 'true' }}
+    # Do not execute untrusted pull-request code on a persistent self-hosted runner.
+    if: ${{ vars.UE_CI_ENABLED == 'true' && github.event_name != 'pull_request' }}
     runs-on: [self-hosted, windows, x64, ue-5.8]
     env:
       UE_SKIP_UBT_SDK_SETUP: '1'

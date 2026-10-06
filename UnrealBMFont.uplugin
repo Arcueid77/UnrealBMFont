@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 3,
-	"VersionName": "0.3.0",
+	"Version": 4,
+	"VersionName": "1.0.0",
 	"FriendlyName": "Unreal BMFont",
 	"Description": "Import and render AngelCode BMFont bitmap fonts in Slate and UMG.",
 	"Category": "UI",
@@ -11,7 +11,7 @@
 	"SupportURL": "https://github.com/AvaloNero/UnrealBMFont/issues",
 	"CanContainContent": true,
 	"EnabledByDefault": false,
-	"IsBetaVersion": true,
+	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Installed": false,
 	"Modules": [

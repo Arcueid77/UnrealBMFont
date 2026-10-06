@@ -636,7 +636,9 @@ void FBMFontSlateRun::EnsureBrushes() const
 	EnsureItems();
 	UBMFontAsset* Font = StyleBlock.IsValid() ? StyleBlock->FontAsset.Get() : nullptr;
 	const uint32 CurrentRevision = Font != nullptr ? Font->GetDataRevision() : 0;
-	const bool bFontCacheChanged = BrushFontAsset.Get() != Font || BrushDataRevision != CurrentRevision;
+	const uint32 ResourceRevision = Font != nullptr ? Font->GetRenderResourceRevision() : 0;
+	const bool bFontCacheChanged = BrushFontAsset.Get() != Font || BrushDataRevision != CurrentRevision
+		|| BrushResourceRevision != ResourceRevision;
 	if (!bFontCacheChanged && BrushItemsRevision == ItemsRevision)
 	{
 		return;
@@ -647,6 +649,7 @@ void FBMFontSlateRun::EnsureBrushes() const
 		GlyphBrushes.Reset();
 		BrushFontAsset = Font;
 		BrushDataRevision = CurrentRevision;
+		BrushResourceRevision = ResourceRevision;
 	}
 	BrushItemsRevision = ItemsRevision;
 	if (Font == nullptr || !Font->FontData.IsValid())
@@ -662,6 +665,15 @@ void FBMFontSlateRun::EnsureBrushes() const
 		}
 	}
 }
+
+#if WITH_DEV_AUTOMATION_TESTS
+UObject* FBMFontSlateRun::GetCachedGlyphResourceForTesting(const int32 Codepoint) const
+{
+	EnsureBrushes();
+	const FSlateBrush* Brush = GlyphBrushes.Find(Codepoint);
+	return Brush != nullptr ? Brush->GetResourceObject() : nullptr;
+}
+#endif
 
 void FBMFontSlateRun::EnsureGlyphBrush(
 	UBMFontAsset& Font,

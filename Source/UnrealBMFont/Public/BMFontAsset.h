@@ -3,6 +3,7 @@
 #pragma once
 
 #include "BMFontTypes.h"
+#include "Containers/Ticker.h"
 #include "UObject/Object.h"
 #include "BMFontAsset.generated.h"
 
@@ -10,6 +11,14 @@ class UAssetImportData;
 class UMaterialInstanceDynamic;
 class UMaterialInterface;
 class FBMFontLayout;
+
+enum class EBMFontAssetChange : uint8
+{
+	Metrics,
+	RenderResources
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FBMFontAssetChanged, EBMFontAssetChange);
 
 /** Imported BMFont descriptor data and hard references to every atlas page. */
 UCLASS(BlueprintType)
@@ -63,12 +72,22 @@ public:
 	UFUNCTION(BlueprintPure, Category = "BMFont")
 	int32 GetKerning(int32 FirstCodepoint, int32 SecondCodepoint) const;
 	uint32 GetDataRevision() const;
+	uint32 GetRenderResourceRevision() const { return RenderResourceRevision; }
+	/** Game-thread changes notify live Slate/UMG consumers, including invalidation panels. */
+	FBMFontAssetChanged& OnChanged() { return ChangedEvent; }
 	void SetFontData(FBMFontData InFontData);
+	UFUNCTION(BlueprintCallable, Category = "BMFont")
+	void SetPackedRenderMaterial(TSoftObjectPtr<UMaterialInterface> InMaterial);
+	/** Adopt an already loaded material without unbounded synchronous retries. */
+	void RefreshRenderResources();
 
+	virtual void Serialize(FArchive& Ar) override;
 	virtual void PreSave(FObjectPreSaveContext ObjectSaveContext) override;
 	virtual void PostLoad() override;
+	virtual void BeginDestroy() override;
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditUndo() override;
 #endif
 
 private:
@@ -78,9 +97,14 @@ private:
 	void ClearRenderResourceCache();
 	void EnsurePackedRenderMaterialReference();
 	void EnsurePackedRenderMaterialLoaded(bool bAllowRenderRetry = false);
+	void AdoptPackedRenderMaterial(UMaterialInterface* Material);
 
 	TMap<uint64, int32> KerningLookup;
 	uint32 DataRevision = 1;
+	uint32 RenderResourceRevision = 1;
+	FBMFontAssetChanged ChangedEvent;
+	FTSTicker::FDelegateHandle MaterialRecoveryHandle;
+	FTSTicker::FDelegateHandle ResourceNotificationHandle;
 
 	UPROPERTY(Transient)
 	TMap<uint64, TObjectPtr<UMaterialInstanceDynamic>> PageMaterialCache;

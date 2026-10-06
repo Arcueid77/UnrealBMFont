@@ -8,6 +8,7 @@
 
 class FBMFontTextDecorator;
 class UBMFontAsset;
+enum class EBMFontAssetChange : uint8;
 struct FBMFontRunStyle;
 
 /**
@@ -115,6 +116,10 @@ private:
 	void UpdateDecoratorConfig();
 	void UpdateDecoratorMatching();
 	void RefreshRuns();
+	void ObserveFontAsset();
+	void HandleFontChanged(EBMFontAssetChange Change);
 
 	TSharedPtr<FBMFontTextDecorator> ActiveDecorator;
+	TWeakObjectPtr<UBMFontAsset> ObservedFontAsset;
+	FDelegateHandle FontChangedHandle;
 };

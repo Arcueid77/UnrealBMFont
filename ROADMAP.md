@@ -2,16 +2,25 @@
 
 The roadmap records direction, not a compatibility promise.
 
-## 0.3
+## Delivered in 0.3
 
 - Bound parser work and imported atlas declarations with explicit, configurable limits.
 - Keep plain-widget brush creation proportional to the glyphs in the current layout and retain a large-glyph-set regression baseline.
 - Automate Development and Shipping cook, package, launch, and deterministic runtime verification.
 - Make GPU screenshot execution an explicit self-hosted CI capability.
 
-## Later beta releases
+## 1.0 release preparation
 
-- Verify another Unreal minor version and publish upgrade notes for any API differences.
+- Repair live asset/resource cache invalidation, including late material recovery.
+- Verify imported assets through save, reload, dependency cooking and packaged GPU rendering.
+- Share a runnable showcase with the automated package probes.
+- Document the public API, serialized schema and non-destructive beta upgrade path.
+- Require validation of the exact commit for every claimed engine build and independent review before publication.
+- Track acceptance and outstanding environment requirements in `Docs/ReleaseReadiness.md`.
+
+## After 1.0
+
+- Validate a second Unreal minor and an official Launcher installation before expanding the verified engine matrix; publish upgrade notes for any API differences.
 - Validate Linux and macOS builds and runtime rendering before claiming those platforms.
 - Add optional import policies for texture filtering and texture asset placement.
 - Add a continuously running coverage-guided parser fuzz target when the build infrastructure can retain and minimize corpora.
@@ -19,7 +28,7 @@ The roadmap records direction, not a compatibility promise.
 ## 1.0 criteria
 
 - Public API and serialized asset versioning policy.
-- Verified compatibility across at least two Unreal minor versions.
+- Verified UE 5.8.0 source-build / Win64 compatibility, with exact engine build details in the release evidence.
 - Required CI gates for Editor, Development, Shipping, automation, cook, and packaged runtime smoke tests on every release commit.
 - Documented upgrade guidance for every breaking beta change.
 

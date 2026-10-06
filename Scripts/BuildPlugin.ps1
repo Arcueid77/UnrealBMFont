@@ -250,6 +250,9 @@ try {
 		'SECURITY.md',
 		'SUPPORT.md',
 		'Docs\Architecture.md',
+		'Docs\API.md',
+		'Docs\Upgrading.md',
+		'Docs\ReleaseReadiness.md',
 		'Docs\Compatibility.md',
 		'Docs\FormatSupport.md',
 		'Docs\ReleaseChecklist.md',
@@ -258,10 +261,16 @@ try {
 		'Docs\Images\showcase-runtime.png',
 		'Samples\Minimal\Minimal.fnt',
 		'Samples\Minimal\Minimal.png',
+		'Samples\MultiPage\MultiPage.fnt',
+		'Samples\MultiPage\Page0.png',
+		'Samples\MultiPage\Page1.png',
 		'Samples\Packed\Packed.fnt',
 		'Samples\Packed\Packed.png',
 		'Samples\Showcase\Showcase.fnt',
-		'Samples\Showcase\Showcase.png'
+		'Samples\Showcase\Showcase.png',
+		'Examples\Showcase\BMFontExample.uproject',
+		'Scripts\CreateExampleProject.ps1',
+		'Scripts\PrepareExampleAssets.py'
 	)
 	foreach ($relativePath in $requiredPackageFiles) {
 		$requiredPath = Join-Path $internalPackageDirectory $relativePath
@@ -269,10 +278,16 @@ try {
 			throw "Required release file is missing from the package: $relativePath"
 		}
 	}
-	foreach ($forbiddenEntry in @('Scripts', '.build', '.codegraph', 'Artifacts')) {
+	foreach ($forbiddenEntry in @('.build', '.codegraph', 'Artifacts')) {
 		$forbiddenPath = Join-Path $internalPackageDirectory $forbiddenEntry
 		if (Test-Path -LiteralPath $forbiddenPath) {
 			throw "Repository-only entry leaked into the release package: $forbiddenEntry"
+		}
+	}
+	$allowedHelpers = @('CreateExampleProject.ps1', 'PrepareExampleAssets.py')
+	foreach ($helper in (Get-ChildItem -LiteralPath (Join-Path $internalPackageDirectory 'Scripts') -Recurse -File)) {
+		if ($helper.Name -notin $allowedHelpers) {
+			throw "Repository-only script leaked into the release package: $($helper.Name)"
 		}
 	}
 

@@ -29,8 +29,8 @@ struct FBMFontRunStyle
 
 /**
  * Mutable configuration shared by the runs a decorator creates. Widget property changes
- * update the block and bump Generation; existing runs observe it on the next layout
- * invalidate, so runtime updates do not need to re-parse the markup.
+ * update the block and bump Generation; the UMG adapter refreshes its text layout
+ * so measured runs observe new settings, while resource-only changes repaint.
  */
 struct FBMFontRunStyleBlock
 {
@@ -48,6 +48,9 @@ struct FBMFontRunStyleBlock
 class FBMFontSlateRun final : public ISlateRun, public TSharedFromThis<FBMFontSlateRun>
 {
 public:
+#if WITH_DEV_AUTOMATION_TESTS
+	UObject* GetCachedGlyphResourceForTesting(int32 Codepoint) const;
+#endif
 	static TSharedRef<FBMFontSlateRun> Create(
 		const FRunInfo& InRunInfo,
 		const TSharedRef<const FString>& InText,
@@ -148,6 +151,7 @@ private:
 
 	mutable TWeakObjectPtr<UBMFontAsset> BrushFontAsset;
 	mutable uint32 BrushDataRevision = 0;
+	mutable uint32 BrushResourceRevision = 0;
 	mutable uint32 BrushItemsRevision = MAX_uint32;
 	mutable TMap<int32, FSlateBrush> GlyphBrushes;
 };

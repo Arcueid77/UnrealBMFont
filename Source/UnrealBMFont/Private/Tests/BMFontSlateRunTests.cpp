@@ -5,6 +5,9 @@
 #include "RichText/BMFontSlateRun.h"
 
 #include "BMFontAsset.h"
+#include "Engine/Texture2D.h"
+#include "MaterialDomain.h"
+#include "Materials/Material.h"
 #include "Fonts/FontCache.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Framework/Text/ShapedTextCache.h"
@@ -129,6 +132,47 @@ bool FBMFontSlateRunHitTest::RunTest(const FString& Parameters)
 		Text->Len()
 	);
 	TestTrue(TEXT("A block-end hit reports RightGutter"), HitPoint == ETextHitPoint::RightGutter);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBMFontSlateRunResourceRevisionTest,
+	"UnrealBMFont.RichText.ResourceRevision",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FBMFontSlateRunResourceRevisionTest::RunTest(const FString& Parameters)
+{
+	UBMFontAsset* Asset = NewObject<UBMFontAsset>();
+	FBMFontData Data;
+	Data.DescriptorFormat = EBMFontDescriptorFormat::Text;
+	Data.Common.LineHeight = 16;
+	Data.Common.Base = 12;
+	Data.Common.ScaleWidth = 16;
+	Data.Common.ScaleHeight = 16;
+	Data.Common.PageCount = 1;
+	Data.Common.bPacked = true;
+	FBMFontPage& Page = Data.Pages.AddDefaulted_GetRef();
+	Page.Id = 0;
+	Page.File = TEXT("atlas.png");
+	Page.Texture = NewObject<UTexture2D>(Asset);
+	FBMFontGlyph& Glyph = Data.Glyphs.Add(65);
+	Glyph.Codepoint = 65;
+	Glyph.Width = 8;
+	Glyph.Height = 10;
+	Glyph.XAdvance = 8;
+	Glyph.Page = 0;
+	Asset->SetFontData(MoveTemp(Data));
+	TSharedPtr<FBMFontRunStyleBlock> Style = MakeShared<FBMFontRunStyleBlock>();
+	Style->FontAsset = Asset;
+	TSharedRef<const FString> Text = MakeShared<FString>(TEXT("A"));
+	TSharedRef<FBMFontSlateRun> Run = FBMFontSlateRun::Create(FRunInfo(TEXT("bmfont")), Text, FTextRange(0, 1), Style);
+	UObject* Before = Run->GetCachedGlyphResourceForTesting(65);
+	TestNotNull(TEXT("Initial rich brush has a resource"), Before);
+	const uint32 DataRevision = Asset->GetDataRevision();
+	Asset->SetPackedRenderMaterial(TSoftObjectPtr<UMaterialInterface>(UMaterial::GetDefaultMaterial(MD_UI)));
+	TestEqual(TEXT("Material replacement does not change glyph metrics"), Asset->GetDataRevision(), DataRevision);
+	UObject* After = Run->GetCachedGlyphResourceForTesting(65);
+	TestNotNull(TEXT("Updated rich brush has a resource"), After);
+	TestNotEqual(TEXT("An existing run replaces its cached brush resource"), Before, After);
 	return true;
 }
 

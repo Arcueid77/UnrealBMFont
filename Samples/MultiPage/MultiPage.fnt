@@ -1,0 +1,10 @@
+info face="UnrealBMFont MultiPage" size=14 unicode=1 smooth=0 padding=0,0,0,0 spacing=1,1
+common lineHeight=16 base=14 scaleW=64 scaleH=16 pages=2 packed=0 alphaChnl=0 redChnl=4 greenChnl=4 blueChnl=4
+page id=0 file="Page0.png"
+page id=1 file="Page1.png"
+chars count=3
+char id=65 x=0 y=1 width=10 height=14 xoffset=0 yoffset=0 xadvance=12 page=0 chnl=15
+char id=66 x=12 y=1 width=10 height=14 xoffset=0 yoffset=0 xadvance=12 page=1 chnl=15
+char id=65533 x=24 y=1 width=10 height=14 xoffset=0 yoffset=0 xadvance=12 page=1 chnl=15
+kernings count=1
+kerning first=65 second=66 amount=-1

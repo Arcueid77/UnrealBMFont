@@ -22,6 +22,7 @@ UBMFontAsset* UBMFontRichTextBlock::GetFontAsset() const
 void UBMFontRichTextBlock::SetFontAsset(UBMFontAsset* InFontAsset)
 {
 	FontAsset = InFontAsset;
+	ObserveFontAsset();
 	UpdateDecoratorConfig();
 }
 
@@ -115,6 +116,7 @@ void UBMFontRichTextBlock::SetDecoratePlainTextRuns(const bool bInDecoratePlainT
 
 void UBMFontRichTextBlock::SynchronizeProperties()
 {
+	ObserveFontAsset();
 	// Configure the decorator before the base class re-pushes the text, so any
 	// resulting re-marshal already sees the new configuration.
 	UpdateDecoratorConfig();
@@ -124,6 +126,12 @@ void UBMFontRichTextBlock::SynchronizeProperties()
 
 void UBMFontRichTextBlock::ReleaseSlateResources(const bool bReleaseChildren)
 {
+	if (UBMFontAsset* Observed = ObservedFontAsset.Get())
+	{
+		Observed->OnChanged().Remove(FontChangedHandle);
+	}
+	ObservedFontAsset.Reset();
+	FontChangedHandle.Reset();
 	Super::ReleaseSlateResources(bReleaseChildren);
 	ActiveDecorator.Reset();
 }
@@ -137,6 +145,7 @@ const FText UBMFontRichTextBlock::GetPaletteCategory()
 
 void UBMFontRichTextBlock::CreateDecorators(TArray<TSharedRef<ITextDecorator>>& OutDecorators)
 {
+	ObserveFontAsset();
 	Super::CreateDecorators(OutDecorators);
 
 	ActiveDecorator = MakeShared<FBMFontTextDecorator>(
@@ -146,6 +155,36 @@ void UBMFontRichTextBlock::CreateDecorators(TArray<TSharedRef<ITextDecorator>>& 
 		bDecoratePlainTextRuns
 	);
 	OutDecorators.Add(ActiveDecorator.ToSharedRef());
+}
+
+void UBMFontRichTextBlock::ObserveFontAsset()
+{
+	if (ObservedFontAsset.Get() == FontAsset.Get())
+	{
+		return;
+	}
+	if (UBMFontAsset* Previous = ObservedFontAsset.Get())
+	{
+		Previous->OnChanged().Remove(FontChangedHandle);
+	}
+	ObservedFontAsset = FontAsset;
+	FontChangedHandle.Reset();
+	if (FontAsset != nullptr)
+	{
+		FontChangedHandle = FontAsset->OnChanged().AddUObject(this, &UBMFontRichTextBlock::HandleFontChanged);
+	}
+}
+
+void UBMFontRichTextBlock::HandleFontChanged(EBMFontAssetChange Change)
+{
+	if (Change == EBMFontAssetChange::Metrics)
+	{
+		RefreshRuns();
+	}
+	else if (MyRichTextBlock.IsValid())
+	{
+		MyRichTextBlock->Invalidate(EInvalidateWidgetReason::Paint);
+	}
 }
 
 FBMFontRunStyle UBMFontRichTextBlock::MakeRunStyle() const

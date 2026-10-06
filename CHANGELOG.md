@@ -4,6 +4,24 @@ All notable changes to Unreal BMFont are documented here. The project follows [S
 
 ## [Unreleased]
 
+## [1.0.0] - Unreleased
+
+### Added
+
+- Native asset-change notifications for live Slate/UMG consumers and resource-only cache revisions.
+- Serialized BMFont schema identity and documented public API and upgrade policy.
+- Runnable showcase template with plain, packed, multi-page and multilingual imported assets.
+- Packaged Development/Shipping GPU pixel probes using map-owned font references and normal dependency cooking.
+- Release validation for every claimed engine build, with source fingerprints and archived evidence; the initial scope is UE 5.8.0 source build / Win64.
+
+### Fixed
+
+- Existing brushes recover after a previously unavailable packed material becomes available.
+- Asset metric changes invalidate existing plain and Rich Text layouts, including cached widget trees.
+- Automation rejects incomplete results; strict GPU validation rejects NullRHI skips.
+
+This version is in release preparation. See `Docs/ReleaseReadiness.md` for verification and remaining acceptance.
+
 ## [0.3.0] - 2026-09-03
 
 ### Added

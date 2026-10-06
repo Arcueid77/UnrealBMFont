@@ -6,9 +6,11 @@
 
 Unreal BMFont imports AngelCode BMFont descriptors and renders their bitmap glyphs in Slate and UMG. The core widget is a purpose-built plain-text bitmap-font counterpart to `UTextBlock`, with a compact layout and rendering pipeline tailored to BMFont assets.
 
-The plugin is currently beta (`0.3.0`). Its runtime API is small and usable, but compatibility beyond the verified matrix is not claimed yet.
+The working version is `1.0.0`, in release preparation. See [release readiness](Docs/ReleaseReadiness.md) for completed checks and remaining gates. The initial support scope is UE 5.8.0 source build / Win64.
 
 [简体中文](README.zh-CN.md) · [Format support](Docs/FormatSupport.md) · [Architecture](Docs/Architecture.md) · [Testing](Docs/Testing.md)
+
+[Runnable example](Examples/Showcase/README.md) · [Public API](Docs/API.md) · [Upgrading](Docs/Upgrading.md)
 
 ![Unreal BMFont multilingual runtime showcase](Docs/Images/showcase-runtime.png)
 
@@ -29,10 +31,10 @@ The plugin is currently beta (`0.3.0`). Its runtime API is small and usable, but
 
 ## Requirements
 
-- Unreal Engine 5.8
+- Unreal Engine 5.8.0 source build (the verified reference environment)
 - A C++ project or an installed precompiled plugin package
 
-Win64 is the currently verified build and runtime-test platform. See [Compatibility](Docs/Compatibility.md) before relying on other engine versions or platforms.
+Win64 is the currently verified build and runtime-test platform. Launcher distributions and other engine versions require separate validation. Precompiled binaries must match the destination engine build; see [Compatibility](Docs/Compatibility.md).
 
 ## Install
 

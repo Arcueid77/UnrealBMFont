@@ -1,5 +1,7 @@
 # Architecture
 
+[简体中文](Architecture.zh-CN.md)
+
 Unreal BMFont uses a narrow pipeline so each responsibility can be tested without a UMG scene.
 
 ```mermaid
@@ -30,6 +32,7 @@ flowchart LR
 - Imports `.fnt` descriptors and their page textures.
 - Tracks source data and implements reimport.
 - Draws Content Browser thumbnails and the read-only font/atlas inspector opened on double-click.
+- The inspector composites the coverage channels used by packed glyphs on the selected page; overlapping channels share the atlas view. Preview brushes are cached until the page, font data, or render resources change.
 - Contains importer-specific automation coverage.
 
 ### UnrealBMFontTests (Editor)

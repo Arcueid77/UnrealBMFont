@@ -36,6 +36,10 @@ public:
 	virtual FLinearColor GetWorldCentricTabColorScale() const override;
 
 private:
+#if WITH_DEV_AUTOMATION_TESTS
+	friend class FBMFontAssetEditorSummaryTest;
+#endif
+
 	TSharedRef<SDockTab> SpawnSummaryTab(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnAtlasTab(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnGlyphTableTab(const FSpawnTabArgs& Args);
@@ -43,7 +47,8 @@ private:
 	TSharedRef<SWidget> BuildSummaryPanel();
 	TSharedRef<SWidget> BuildGlyphTable();
 	void PopulateSummaryPanel();
-	void AddSummaryRow(const TSharedRef<SVerticalBox>& Panel, const FText& Label, const FText& Value) const;
+	static void PopulateSummaryPanel(const TSharedRef<SVerticalBox>& Panel, const UBMFontAsset* Asset);
+	static void AddSummaryRow(const TSharedRef<SVerticalBox>& Panel, const FText& Label, const FText& Value);
 	void HandlePageSelected(TSharedPtr<int32> Item, ESelectInfo::Type SelectInfo);
 	void HandleGlyphSelected(int32 Codepoint);
 	void HandlePostReimport(UObject* ReimportedObject, bool bSuccess);

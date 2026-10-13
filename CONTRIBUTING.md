@@ -1,5 +1,7 @@
 # Contributing
 
+[简体中文](CONTRIBUTING.zh-CN.md)
+
 Thanks for improving Unreal BMFont. Small, reviewable changes with reproducible evidence are preferred.
 
 ## Before opening a change
@@ -55,11 +57,13 @@ This step is intentionally heavier than Editor automation. Keep the generated ho
 ## Pull request checklist
 
 - The change has a focused rationale and no unrelated generated files.
-- New public behavior is documented in both READMEs or the relevant document.
+- New public behavior is documented in both language versions of the relevant document; keep language-switch links in sync.
 - Format/compatibility claims match actual tests.
 - Runtime code builds without Editor modules.
 - Automation tests pass and the report is attached or summarized.
 - New files have the repository copyright header where appropriate.
 - `CHANGELOG.md` is updated for user-visible changes.
+
+Keep generated projects, local acceptance checklists, review reports and release evidence outside the repository. Public usage, API, development and release procedures belong in the documentation; local run histories do not.
 
 By contributing, you agree that your contribution is licensed under this repository's MIT License.

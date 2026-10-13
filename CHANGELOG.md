@@ -1,8 +1,21 @@
 # Changelog
 
+[简体中文](CHANGELOG.zh-CN.md)
+
 All notable changes to Unreal BMFont are documented here. The project follows [Semantic Versioning](https://semver.org/) and the structure of [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
+
+### Changed
+
+- Completed English and Simplified Chinese documentation, including sample guides and contribution forms; local acceptance records and review reports remain outside the repository.
+
+### Fixed
+
+- The showcase explicitly enables the Editor-only Content Browser asset source and engine asset definitions.
+- Font inspector summary rows are attached to the panel, and atlas previews use the theme background tint so white glyphs remain visible.
+- Packed atlas previews and Content Browser thumbnails show the page's glyph coverage channels, including RGB glyphs with zero atlas alpha.
+- Imported fonts expose source-file registry metadata and enable the standard Content Browser reimport actions.
 
 ## [1.0.0] - Unreleased
 
@@ -20,7 +33,7 @@ All notable changes to Unreal BMFont are documented here. The project follows [S
 - Asset metric changes invalidate existing plain and Rich Text layouts, including cached widget trees.
 - Automation rejects incomplete results; strict GPU validation rejects NullRHI skips.
 
-This version is in release preparation. See `Docs/ReleaseReadiness.md` for verification and remaining acceptance.
+This version is in release preparation. See [Release checklist](Docs/ReleaseChecklist.md) for the publication requirements. Local acceptance records remain outside the repository.
 
 ## [0.3.0] - 2026-09-03
 

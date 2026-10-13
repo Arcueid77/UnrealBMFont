@@ -1,5 +1,7 @@
 # Runnable showcase and packaged rendering probe
 
+[简体中文](README.zh-CN.md)
+
 This is a source template, not an already generated project. From the repository,
 build the plugin package and run:
 

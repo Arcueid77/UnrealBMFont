@@ -1,5 +1,7 @@
 # Third-party notices
 
+[简体中文](THIRD_PARTY_NOTICES.zh-CN.md)
+
 Unreal BMFont contains no third-party source code or font files.
 
 The plugin is built against Unreal Engine APIs. Unreal Engine is distributed under Epic Games' terms and is not covered by this repository's MIT License.

@@ -6,11 +6,11 @@
 
 Unreal BMFont 用于导入 AngelCode BMFont 描述文件，并在 Slate / UMG 中渲染位图字形。核心控件是为 BMFont 专门设计的普通文本控件，可以把它理解为 `UTextBlock` 的位图字体版本，并使用精简的专用布局与渲染管线。
 
-当前工作版本为正在准备发布的 `1.0.0`，初始支持范围为 UE 5.8.0 源码构建 / Win64。已验证项目与剩余门槛见[发布准备状态](Docs/ReleaseReadiness.md)。
+当前工作版本为正在准备发布的 `1.0.0`，初始支持范围为 UE 5.8.0 源码构建 / Win64。通用发布要求见[发布清单](Docs/ReleaseChecklist.zh-CN.md)；本地验收记录和审查报告不进入仓库。
 
-[English](README.md) · [格式支持](Docs/FormatSupport.md) · [架构](Docs/Architecture.md) · [测试](Docs/Testing.md)
+[English](README.md) · [格式支持](Docs/FormatSupport.zh-CN.md) · [架构](Docs/Architecture.zh-CN.md) · [测试](Docs/Testing.zh-CN.md)
 
-[可运行示例](Examples/Showcase/README.md) · [公开 API](Docs/API.md) · [升级说明](Docs/Upgrading.md)
+[可运行示例](Examples/Showcase/README.zh-CN.md) · [公开 API](Docs/API.zh-CN.md) · [升级说明](Docs/Upgrading.zh-CN.md)
 
 ![Unreal BMFont 多语言运行时展示](Docs/Images/showcase-runtime.png)
 
@@ -34,7 +34,7 @@ Unreal BMFont 用于导入 AngelCode BMFont 描述文件，并在 Slate / UMG �
 - Unreal Engine 5.8.0 源码构建（已验证的参考环境）
 - C++ 项目，或已预编译的插件包
 
-目前完整验证的平台是 Win64。Launcher 发行版和其它引擎版本需要另行验证；预编译二进制须与目标引擎构建匹配，详见[兼容性说明](Docs/Compatibility.md)。
+目前完整验证的平台是 Win64。Launcher 发行版和其它引擎版本需要另行验证；预编译二进制须与目标引擎构建匹配，详见[兼容性说明](Docs/Compatibility.zh-CN.md)。
 
 ## 安装
 
@@ -59,13 +59,13 @@ pwsh ./Scripts/BuildPlugin.ps1 -EngineRoot "C:\Program Files\Epic Games\UE_5.8"
 4. 指定导入的字体资产并设置 `Text`。
 5. 如果图集不含替换字符 `U+FFFD`，把 `Fallback Codepoint` 改成图集中已有的字符，常用值是问号 `63`。
 
-仓库在 [`Samples/Minimal`](Samples/Minimal) 中提供了一套完全原创的最小导入样例，并在 [`Samples/Showcase`](Samples/Showcase) 中提供多语言人工验收样例。Showcase 覆盖数字、大写拉丁字母、平假名、中文数字和缺字回退。
+仓库在 [`Samples/Minimal`](Samples/Minimal/README.zh-CN.md) 中提供了一套完全原创的最小导入样例，并在 [`Samples/Showcase`](Samples/Showcase/README.zh-CN.md) 中提供多语言展示样例。Showcase 覆盖数字、大写拉丁字母、平假名、中文数字和缺字回退。
 
 ## 明确的边界
 
 BMFont 保存的是已经栅格化的字形矩形，不是字体塑形系统。当前版本适用于拉丁文、CJK、数字、图标和其它从左到右的预制字形集；不提供双向排版、OpenType shaping 或连字。Rich Text 适配器按 run 独立测量，kerning 不跨标签边界。Packed-channel 图集通过内置通道提取材质渲染，outline 通道不做单独合成。
 
-完整边界见[格式支持](Docs/FormatSupport.md)，后续方向见[路线图](ROADMAP.md)。
+完整边界见[格式支持](Docs/FormatSupport.zh-CN.md)，后续方向见[路线图](ROADMAP.zh-CN.md)。
 
 ## 开发与验证
 
@@ -91,8 +91,8 @@ pwsh ./Scripts/TestPackagedRuntime.ps1 `
   -PluginPackage "$env:TEMP\UnrealBMFont-Package"
 ```
 
-提交改动前请阅读[贡献指南](CONTRIBUTING.md)。
+提交改动前请阅读[贡献指南](CONTRIBUTING.zh-CN.md)。
 
 ## 许可证
 
-Unreal BMFont 使用 [MIT License](LICENSE)。仓库不包含第三方源码或字体文件；生成后的 Showcase 图集来源见[第三方声明](THIRD_PARTY_NOTICES.md)。
+Unreal BMFont 使用 [MIT License](LICENSE)，可阅读[非正式中文译文](LICENSE.zh-CN.md)。仓库不包含第三方源码或字体文件；生成后的 Showcase 图集来源见[第三方声明](THIRD_PARTY_NOTICES.zh-CN.md)。

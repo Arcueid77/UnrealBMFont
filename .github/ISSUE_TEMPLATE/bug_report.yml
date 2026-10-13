@@ -1,52 +1,52 @@
-name: Bug report
-description: Report a reproducible import, layout, render, cook, or runtime defect.
+name: Bug report / 问题报告
+description: Report a reproducible import, layout, render, cook, or runtime defect. / 报告可复现的导入、布局、渲染、Cook 或运行时问题。
 title: "[Bug]: "
 labels: [bug]
 body:
   - type: markdown
     attributes:
-      value: Do not attach fonts or atlases you are not allowed to redistribute.
+      value: Do not attach fonts or atlases you are not allowed to redistribute. / 不要附上无权再分发的字体或图集。
   - type: input
     id: engine
     attributes:
-      label: Unreal Engine version
-      placeholder: 5.8 source build, CL if known
+      label: Unreal Engine version / 引擎版本
+      placeholder: 5.8 source build, CL if known / 5.8 源码构建，已知时填写 CL
     validations:
       required: true
   - type: input
     id: platform
     attributes:
-      label: Host and target platform
-      placeholder: Windows 11 / Win64 Shipping
+      label: Host and target platform / 宿主与目标平台
+      placeholder: Windows 11 / Win64 Shipping（示例）
     validations:
       required: true
   - type: dropdown
     id: format
     attributes:
-      label: Descriptor format
+      label: Descriptor format / 描述文件格式
       options:
-        - Text
+        - Text / 文本
         - XML
-        - Binary v3
-        - Unknown
+        - Binary v3 / 二进制 v3
+        - Unknown / 不确定
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: Minimal reproduction
-      description: Include exact steps and the smallest redistributable fixture or descriptor excerpt.
+      label: Minimal reproduction / 最小复现
+      description: Include exact steps and the smallest redistributable fixture or descriptor excerpt. / 提供准确步骤，以及最小的可再分发样例或描述文件片段。
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
+      label: Expected behavior / 预期行为
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Relevant logs
-      description: Include LogUnrealBMFont and Automation output; remove private paths if needed.
+      label: Relevant logs / 相关日志
+      description: Include LogUnrealBMFont and Automation output; remove private paths if needed. / 提供 LogUnrealBMFont 和自动化输出，必要时移除私有路径。
       render: text

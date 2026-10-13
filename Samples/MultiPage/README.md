@@ -1,5 +1,7 @@
 # Multi-page fixture
 
+[简体中文](README.zh-CN.md)
+
 `A` exists only on page 0; `B` and the replacement character exist only on page 1.
 The corresponding rectangles on the other page are transparent, so always selecting
 either page cannot accidentally pass the packaged `AB` rendering probe.

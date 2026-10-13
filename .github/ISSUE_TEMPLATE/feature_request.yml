@@ -1,29 +1,29 @@
-name: Feature request
-description: Propose a focused capability or compatibility improvement.
+name: Feature request / 功能建议
+description: Propose a focused capability or compatibility improvement. / 提出范围明确的功能或兼容性改进。
 title: "[Feature]: "
 labels: [enhancement]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem to solve
-      description: Explain the real workflow that is blocked, not only the proposed API.
+      label: Problem to solve / 要解决的问题
+      description: Explain the real workflow that is blocked, not only the proposed API. / 说明实际受阻的工作流程，而不只是建议的 API。
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
-      label: Proposed behavior
+      label: Proposed behavior / 建议行为
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives considered
+      label: Alternatives considered / 考虑过的替代方案
   - type: checkboxes
     id: scope
     attributes:
-      label: Scope check
+      label: Scope check / 范围确认
       options:
-        - label: This can be implemented from BMFont descriptor and atlas data without a source font face.
-        - label: I can provide a redistributable fixture or automated test.
+        - label: This can be implemented from BMFont descriptor and atlas data without a source font face. / 该功能可以只用 BMFont 描述和图集实现，无须源字体面。
+        - label: I can provide a redistributable fixture or automated test. / 我能提供可再分发样例或自动化测试。

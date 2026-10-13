@@ -1,5 +1,7 @@
 # Packed sample
 
+[简体中文](README.zh-CN.md)
+
 A minimal packed-channel (`packed=1`) fixture: glyph coverage lives in the
 green channel, and every other channel is declared zero. It exists to
 exercise the channel-extraction material path during manual verification.

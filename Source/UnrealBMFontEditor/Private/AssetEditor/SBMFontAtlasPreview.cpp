@@ -3,6 +3,7 @@
 #include "AssetEditor/SBMFontAtlasPreview.h"
 
 #include "BMFontAsset.h"
+#include "BMFontRendering.h"
 #include "Engine/Texture2D.h"
 #include "Rendering/DrawElements.h"
 #include "Styling/AppStyle.h"
@@ -50,11 +51,12 @@ int32 SBMFontAtlasPreview::OnPaint(
 		LayerId,
 		AllottedGeometry.ToPaintGeometry(),
 		BackgroundBrush,
-		bParentEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect
+		bParentEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect,
+		InWidgetStyle.GetColorAndOpacityTint() * BackgroundBrush->GetTint(InWidgetStyle)
 	);
 	++LayerId;
 
-	const UBMFontAsset* Font = FontAsset.Get();
+	UBMFontAsset* Font = FontAsset.Get();
 	if (Font == nullptr)
 	{
 		return LayerId;
@@ -66,13 +68,49 @@ int32 SBMFontAtlasPreview::OnPaint(
 		return LayerId;
 	}
 
-	if (CachedPageTexture.Get() != PageTexture)
+	if (CachedPageTexture.Get() != PageTexture
+		|| CachedDataRevision != Font->GetDataRevision()
+		|| CachedRenderResourceRevision != Font->GetRenderResourceRevision())
 	{
+		PageBrushes.Reset();
+		TArray<int32, TInlineAllocator<4>> PreviewChannels;
+		if (Font->FontData.Common.bPacked)
+		{
+			// Composite the coverage channels used on this page. Raw RGBA sampling
+			// hides RGB-packed glyphs when the atlas alpha channel is zero.
+			TArray<FBMFontPackedChannelMapping, TInlineAllocator<4>> Mappings;
+			for (const TPair<int32, FBMFontGlyph>& Entry : Font->FontData.Glyphs)
+			{
+				const FBMFontGlyph& Glyph = Entry.Value;
+				if (Glyph.Page != PageId || Glyph.Width <= 0 || Glyph.Height <= 0)
+				{
+					continue;
+				}
+				const FBMFontPackedChannelMapping Mapping = BMFontRendering::ComputePackedChannelMapping(
+					Font->FontData.Common, Glyph.Channel);
+				if (!Mappings.ContainsByPredicate([&Mapping](const FBMFontPackedChannelMapping& Existing)
+					{ return Existing.ChannelWeights == Mapping.ChannelWeights && Existing.ConstantBias == Mapping.ConstantBias; }))
+				{
+					Mappings.Add(Mapping);
+					PreviewChannels.Add(Glyph.Channel);
+				}
+			}
+			PreviewChannels.Sort();
+		}
+		if (PreviewChannels.IsEmpty())
+		{
+			PreviewChannels.Add(15);
+		}
+		for (const int32 Channel : PreviewChannels)
+		{
+			FSlateBrush& Brush = PageBrushes.AddDefaulted_GetRef();
+			Brush.DrawAs = ESlateBrushDrawType::Image;
+			Brush.SetResourceObject(Font->GetPageRenderResource(PageId, Channel));
+			Brush.SetImageSize(FVector2D(PageTexture->GetSizeX(), PageTexture->GetSizeY()));
+		}
 		CachedPageTexture = PageTexture;
-		PageBrush = FSlateBrush();
-		PageBrush.DrawAs = ESlateBrushDrawType::Image;
-		PageBrush.SetResourceObject(PageTexture);
-		PageBrush.SetImageSize(FVector2D(PageTexture->GetSizeX(), PageTexture->GetSizeY()));
+		CachedDataRevision = Font->GetDataRevision();
+		CachedRenderResourceRevision = Font->GetRenderResourceRevision();
 	}
 
 	float ViewScale = 1.0f;
@@ -83,17 +121,20 @@ int32 SBMFontAtlasPreview::OnPaint(
 		return LayerId;
 	}
 
-	FSlateDrawElement::MakeBox(
-		OutDrawElements,
-		LayerId,
-		AllottedGeometry.ToPaintGeometry(
-			FVector2D(PageTexture->GetSizeX(), PageTexture->GetSizeY()) * ViewScale,
-			FSlateLayoutTransform(ViewOffset)
-		),
-		&PageBrush,
-		bParentEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect
-	);
-	++LayerId;
+	for (const FSlateBrush& Brush : PageBrushes)
+	{
+		FSlateDrawElement::MakeBox(
+			OutDrawElements,
+			LayerId++,
+			AllottedGeometry.ToPaintGeometry(
+				FVector2D(PageTexture->GetSizeX(), PageTexture->GetSizeY()) * ViewScale,
+				FSlateLayoutTransform(ViewOffset)
+			),
+			&Brush,
+			bParentEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect,
+			InWidgetStyle.GetColorAndOpacityTint()
+		);
+	}
 
 	const FLinearColor GlyphLineColor(1.0f, 1.0f, 1.0f, 0.25f);
 	const FLinearColor SelectedLineColor(0.35f, 0.65f, 1.0f, 1.0f);

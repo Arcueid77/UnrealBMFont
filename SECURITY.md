@@ -1,5 +1,7 @@
 # Security policy
 
+[简体中文](SECURITY.zh-CN.md)
+
 ## Supported versions
 
 Security fixes are applied to the latest source revision. Until the project reaches a stable `1.x` release, older beta revisions are not maintained separately.

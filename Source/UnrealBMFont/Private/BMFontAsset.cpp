@@ -13,6 +13,10 @@
 #include "EditorFramework/AssetImportData.h"
 #endif
 
+#if WITH_EDITOR
+#include "UObject/AssetRegistryTagsContext.h"
+#endif
+
 namespace
 {
 	uint64 MakePageMaterialKey(const int32 PageId, const int32 GlyphChannel)
@@ -178,6 +182,23 @@ void UBMFontAsset::Serialize(FArchive& Ar)
 	Ar.UsingCustomVersion(FBMFontCustomVersion::GUID);
 	Super::Serialize(Ar);
 }
+
+#if WITH_EDITOR
+void UBMFontAsset::GetAssetRegistryTags(FAssetRegistryTagsContext Context) const
+{
+	Super::GetAssetRegistryTags(Context);
+#if WITH_EDITORONLY_DATA
+	if (AssetImportData != nullptr)
+	{
+		Context.AddTag(FAssetRegistryTag(
+			SourceFileTagName(),
+			AssetImportData->GetSourceData().ToJson(),
+			FAssetRegistryTag::TT_Hidden
+		));
+	}
+#endif
+}
+#endif
 
 void UBMFontAsset::BeginDestroy()
 {

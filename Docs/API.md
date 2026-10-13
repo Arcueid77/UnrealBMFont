@@ -1,5 +1,7 @@
 # Public API and asset compatibility
 
+[简体中文](API.zh-CN.md)
+
 ## 1.x stability contract
 
 The supported surface is the exported declarations under `Source/UnrealBMFont/Public`:

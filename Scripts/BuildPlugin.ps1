@@ -240,6 +240,7 @@ try {
 
 	$requiredPackageFiles = @(
 		'LICENSE',
+		'LICENSE.zh-CN.md',
 		'THIRD_PARTY_NOTICES.md',
 		'README.md',
 		'README.zh-CN.md',
@@ -252,7 +253,6 @@ try {
 		'Docs\Architecture.md',
 		'Docs\API.md',
 		'Docs\Upgrading.md',
-		'Docs\ReleaseReadiness.md',
 		'Docs\Compatibility.md',
 		'Docs\FormatSupport.md',
 		'Docs\ReleaseChecklist.md',
@@ -261,17 +261,24 @@ try {
 		'Docs\Images\showcase-runtime.png',
 		'Samples\Minimal\Minimal.fnt',
 		'Samples\Minimal\Minimal.png',
+		'Samples\Minimal\README.md',
 		'Samples\MultiPage\MultiPage.fnt',
 		'Samples\MultiPage\Page0.png',
 		'Samples\MultiPage\Page1.png',
+		'Samples\MultiPage\README.md',
 		'Samples\Packed\Packed.fnt',
 		'Samples\Packed\Packed.png',
+		'Samples\Packed\README.md',
 		'Samples\Showcase\Showcase.fnt',
 		'Samples\Showcase\Showcase.png',
+		'Samples\Showcase\README.md',
 		'Examples\Showcase\BMFontExample.uproject',
+		'Examples\Showcase\README.md',
 		'Scripts\CreateExampleProject.ps1',
 		'Scripts\PrepareExampleAssets.py'
 	)
+	$englishDocuments = @($requiredPackageFiles | Where-Object { $_.EndsWith('.md') -and -not $_.EndsWith('.zh-CN.md') })
+	$requiredPackageFiles += @($englishDocuments | ForEach-Object { $_.Substring(0, $_.Length - 3) + '.zh-CN.md' })
 	foreach ($relativePath in $requiredPackageFiles) {
 		$requiredPath = Join-Path $internalPackageDirectory $relativePath
 		if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
@@ -282,6 +289,13 @@ try {
 		$forbiddenPath = Join-Path $internalPackageDirectory $forbiddenEntry
 		if (Test-Path -LiteralPath $forbiddenPath) {
 			throw "Repository-only entry leaked into the release package: $forbiddenEntry"
+		}
+	}
+	foreach ($file in (Get-ChildItem -LiteralPath $internalPackageDirectory -Recurse -File)) {
+		if ($file.Name -in @('MANUAL_ACCEPTANCE.md', 'VALIDATION_SUMMARY.md', 'ReleaseReadiness.md',
+			'release-evidence.json', 'distribution-evidence.json', 'image-integrity-evidence.json', 'source-archive-manifest.json') -or
+			$file.Name -match '^CC-.*(?:REVIEW|review).*\.md$') {
+			throw "Local acceptance/review evidence leaked into the package: $($file.Name)"
 		}
 	}
 	$allowedHelpers = @('CreateExampleProject.ps1', 'PrepareExampleAssets.py')

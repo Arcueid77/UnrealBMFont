@@ -11,7 +11,7 @@ class UTexture2D;
 DECLARE_DELEGATE_OneParam(FOnBMFontGlyphSelected, int32 /*Codepoint*/);
 
 /**
- * Read-only atlas preview for the BMFont asset editor: draws the selected page texture,
+ * Read-only atlas preview for the BMFont asset editor: draws the selected page coverage,
  * outlines every glyph rectangle, and reports glyph clicks.
  */
 class SBMFontAtlasPreview final : public SCompoundWidget
@@ -48,6 +48,10 @@ protected:
 	virtual bool SupportsKeyboardFocus() const override { return false; }
 
 private:
+#if WITH_DEV_AUTOMATION_TESTS
+	friend class FBMFontAtlasPreviewPaintTest;
+#endif
+
 	/** Atlas-rect geometry: fit scale and top-left offset for the current geometry size. */
 	void ComputeViewTransform(const FVector2D& LocalSize, float& OutScale, FVector2D& OutOffset) const;
 
@@ -56,6 +60,8 @@ private:
 	int32 SelectedCodepoint = INDEX_NONE;
 	FOnBMFontGlyphSelected OnGlyphSelected;
 
-	mutable FSlateBrush PageBrush;
+	mutable TArray<FSlateBrush> PageBrushes;
 	mutable TWeakObjectPtr<UTexture2D> CachedPageTexture;
+	mutable uint32 CachedDataRevision = 0;
+	mutable uint32 CachedRenderResourceRevision = 0;
 };

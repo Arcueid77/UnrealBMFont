@@ -1,5 +1,7 @@
 # Format support
 
+[简体中文](FormatSupport.zh-CN.md)
+
 ## Descriptor matrix
 
 | Capability | Status | Notes |

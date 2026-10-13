@@ -1,5 +1,7 @@
 # Showcase sample
 
+[简体中文](README.zh-CN.md)
+
 `Showcase.fnt` and `Showcase.png` form a larger manual-validation fixture. Import only `Showcase.fnt`; the importer resolves the PNG beside it automatically.
 
 The atlas contains 135 unique code points:

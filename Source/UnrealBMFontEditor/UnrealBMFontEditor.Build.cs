@@ -19,8 +19,10 @@ public class UnrealBMFontEditor : ModuleRules
 				"AssetDefinition",
 				"AssetRegistry",
 				"Projects",
+				"RHI",
 				"Slate",
 				"SlateCore",
+				"UMG",
 				"UnrealBMFont",
 				"UnrealEd"
 			}

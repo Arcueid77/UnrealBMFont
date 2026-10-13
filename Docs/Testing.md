@@ -1,5 +1,7 @@
 # Testing
 
+[简体中文](Testing.zh-CN.md)
+
 ## Automation coverage
 
 The `UnrealBMFont.*` suite covers:
@@ -90,7 +92,7 @@ The default headless automation still skips GPU screenshot cases. Run a second p
 
 ## Final release validation
 
-`Scripts/TestRelease.ps1` runs package audits, both packaged GPU configurations, full automation and GPU automation for each supplied engine. Final mode requires a clean commit and at least one complete Win64 engine build; a source build is sufficient. Every supplied build must pass. It records each engine's version and installed-build marker, checks that the source commit and input fingerprint stay unchanged, and writes `release-evidence.json`. Development runs with `-CandidateOnly`, prerelease versions and beta descriptors explicitly remain non-release evidence even when `AutomatedGatesPassed` is true. See [ReleaseReadiness.md](ReleaseReadiness.md).
+`Scripts/TestRelease.ps1` runs package audits, both packaged GPU configurations, full automation and GPU automation for each supplied engine. Final mode requires a clean commit and at least one complete Win64 engine build; a source build is sufficient. Every supplied build must pass. It records each engine's version and installed-build marker, checks that the source commit and input fingerprint stay unchanged, and writes `release-evidence.json`. Development runs with `-CandidateOnly`, prerelease versions and beta descriptors explicitly remain non-release evidence even when `AutomatedGatesPassed` is true. See [Release checklist](ReleaseChecklist.md). Keep generated evidence and local acceptance records outside the repository; automated success alone does not complete interactive acceptance or authorize publication.
 
 `Scripts/TestScriptGuards.ps1` exercises output-tree, stale-directory and empty-configuration rejection without starting a build. Supply the reference engine and a built plugin package. `Scripts/TestAssetUpgrade.py` checks a copied beta asset across two Editor processes; see [Upgrading.md](Upgrading.md).
 

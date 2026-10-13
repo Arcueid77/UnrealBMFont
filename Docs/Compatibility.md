@@ -1,20 +1,18 @@
 # Compatibility
 
-The table below records the **0.3.0 reference baseline**. Candidate evidence and
-blockers are tracked separately in [ReleaseReadiness.md](ReleaseReadiness.md).
+[简体中文](Compatibility.zh-CN.md)
 
-On 2026-09-26, `1.0.0-rc.1` passed local UE 5.8.0 source-build / Win64 compilation,
-40 headless tests, 8 GPU-suite tests, and real imported-asset pixel probes in packaged
-Development and Shipping. This is development-tree evidence, not approval for a
-release or support for a second engine version. Manual acceptance and final-commit
-validation remain open.
+The initial support scope is **UE 5.8.0 source build, CL 0 / Win64**. The table
+records the reference environment and the checks used for this scope. Release
+evidence belongs with the exact tested commit, outside the repository; it does not
+replace interactive acceptance or publication approval.
 
 | Area | Verified | Not yet claimed |
 | --- | --- | --- |
-| Unreal Engine | 5.8 source build | 5.7 and earlier; future minors |
+| Unreal Engine | 5.8.0 source build, CL 0 | Launcher builds; 5.7 and earlier; future minors |
 | Host platform | Windows 11, Win64 | Linux, macOS |
 | Targets | UnrealEditor Development, UnrealGame Development, UnrealGame Shipping | Consoles and mobile |
-| Runtime smoke | Headless Editor automation plus automated packaged Development and Shipping launches with NullRHI, widget construction, and packed-material load markers | Interactive packaged screenshot comparison |
+| Packaged rendering | Real imported-asset GPU pixel probes in Development and Shipping, covering plain, packed, multi-page and Rich Text rendering | Other engine/platform combinations |
 | Widget rendering | GPU screenshot tests against committed ground truth, reference GPU/driver | Cross-vendor GPU variance beyond the comparison tolerance |
 | Descriptor formats | Text, compact XML, binary v3 | Binary v1/v2 |
 | Page images | PNG | Every format accepted by TextureFactory |

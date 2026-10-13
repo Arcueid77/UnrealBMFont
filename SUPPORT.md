@@ -1,5 +1,7 @@
 # Support
 
+[简体中文](SUPPORT.zh-CN.md)
+
 Use repository discussions for setup questions and the issue tracker for reproducible defects or feature proposals.
 
 A useful support request includes:

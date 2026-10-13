@@ -1,5 +1,7 @@
 # Code of conduct
 
+[简体中文](CODE_OF_CONDUCT.zh-CN.md)
+
 Unreal BMFont contributors and maintainers are expected to keep project spaces constructive, specific, and welcoming.
 
 - Discuss code and evidence, not personal attributes.

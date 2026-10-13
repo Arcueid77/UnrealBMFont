@@ -1,5 +1,7 @@
 # Minimal sample
 
+[简体中文](README.zh-CN.md)
+
 `Minimal.fnt` and `Minimal.png` are original fixtures containing space, `A`, `B`, and the replacement character (`U+FFFD`). Import `Minimal.fnt`; the page file is resolved automatically.
 
 Suggested smoke text:

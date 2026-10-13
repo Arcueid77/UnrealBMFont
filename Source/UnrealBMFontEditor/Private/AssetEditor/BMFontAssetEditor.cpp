@@ -247,52 +247,55 @@ TSharedRef<SWidget> FBMFontAssetEditor::BuildSummaryPanel()
 
 void FBMFontAssetEditor::PopulateSummaryPanel()
 {
-	if (!SummaryPanel.IsValid())
+	if (SummaryPanel.IsValid())
+	{
+		PopulateSummaryPanel(SummaryPanel.ToSharedRef(), EditingAsset);
+	}
+}
+
+void FBMFontAssetEditor::PopulateSummaryPanel(const TSharedRef<SVerticalBox>& Panel, const UBMFontAsset* Asset)
+{
+	Panel->ClearChildren();
+	if (Asset == nullptr)
 	{
 		return;
 	}
 
-	SummaryPanel->ClearChildren();
-	if (EditingAsset == nullptr)
-	{
-		return;
-	}
+	const FBMFontData& Data = Asset->FontData;
 
-	const FBMFontData& Data = EditingAsset->FontData;
-
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryFace", "Face"), FText::FromString(Data.Info.Face));
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummarySize", "Size"), FText::AsNumber(Data.Info.Size));
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryFormat", "Format"), FormatDescriptorFormat(Data.DescriptorFormat));
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryLineHeight", "Line Height"), FText::AsNumber(Data.Common.LineHeight));
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryBase", "Base"), FText::AsNumber(Data.Common.Base));
+	AddSummaryRow(Panel, LOCTEXT("SummaryFace", "Face"), FText::FromString(Data.Info.Face));
+	AddSummaryRow(Panel, LOCTEXT("SummarySize", "Size"), FText::AsNumber(Data.Info.Size));
+	AddSummaryRow(Panel, LOCTEXT("SummaryFormat", "Format"), FormatDescriptorFormat(Data.DescriptorFormat));
+	AddSummaryRow(Panel, LOCTEXT("SummaryLineHeight", "Line Height"), FText::AsNumber(Data.Common.LineHeight));
+	AddSummaryRow(Panel, LOCTEXT("SummaryBase", "Base"), FText::AsNumber(Data.Common.Base));
 	AddSummaryRow(
-		SummaryPanel.ToSharedRef(),
+		Panel,
 		LOCTEXT("SummaryAtlasSize", "Atlas Size"),
 		FText::Format(LOCTEXT("AtlasSizeFmt", "{0} x {1}"), FText::AsNumber(Data.Common.ScaleWidth), FText::AsNumber(Data.Common.ScaleHeight))
 	);
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryPages", "Pages"), FText::AsNumber(Data.Pages.Num()));
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryGlyphs", "Glyphs"), FText::AsNumber(Data.Glyphs.Num()));
-	AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryKerning", "Kerning Pairs"), FText::AsNumber(Data.KerningPairs.Num()));
+	AddSummaryRow(Panel, LOCTEXT("SummaryPages", "Pages"), FText::AsNumber(Data.Pages.Num()));
+	AddSummaryRow(Panel, LOCTEXT("SummaryGlyphs", "Glyphs"), FText::AsNumber(Data.Glyphs.Num()));
+	AddSummaryRow(Panel, LOCTEXT("SummaryKerning", "Kerning Pairs"), FText::AsNumber(Data.KerningPairs.Num()));
 	AddSummaryRow(
-		SummaryPanel.ToSharedRef(),
+		Panel,
 		LOCTEXT("SummaryPacked", "Packed"),
 		Data.Common.bPacked ? LOCTEXT("PackedYes", "Yes") : LOCTEXT("PackedNo", "No")
 	);
 	if (Data.Common.bPacked)
 	{
-		AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryChannelA", "Alpha Channel"), FormatChannelContent(Data.Common.AlphaChannel));
-		AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryChannelR", "Red Channel"), FormatChannelContent(Data.Common.RedChannel));
-		AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryChannelG", "Green Channel"), FormatChannelContent(Data.Common.GreenChannel));
-		AddSummaryRow(SummaryPanel.ToSharedRef(), LOCTEXT("SummaryChannelB", "Blue Channel"), FormatChannelContent(Data.Common.BlueChannel));
+		AddSummaryRow(Panel, LOCTEXT("SummaryChannelA", "Alpha Channel"), FormatChannelContent(Data.Common.AlphaChannel));
+		AddSummaryRow(Panel, LOCTEXT("SummaryChannelR", "Red Channel"), FormatChannelContent(Data.Common.RedChannel));
+		AddSummaryRow(Panel, LOCTEXT("SummaryChannelG", "Green Channel"), FormatChannelContent(Data.Common.GreenChannel));
+		AddSummaryRow(Panel, LOCTEXT("SummaryChannelB", "Blue Channel"), FormatChannelContent(Data.Common.BlueChannel));
 	}
 
 #if WITH_EDITORONLY_DATA
-	if (EditingAsset->AssetImportData != nullptr)
+	if (Asset->AssetImportData != nullptr)
 	{
 		AddSummaryRow(
-			SummaryPanel.ToSharedRef(),
+			Panel,
 			LOCTEXT("SummarySource", "Source"),
-			FText::FromString(EditingAsset->AssetImportData->GetFirstFilename())
+			FText::FromString(Asset->AssetImportData->GetFirstFilename())
 		);
 	}
 #endif
@@ -301,9 +304,9 @@ void FBMFontAssetEditor::PopulateSummaryPanel()
 void FBMFontAssetEditor::AddSummaryRow(
 	const TSharedRef<SVerticalBox>& Panel,
 	const FText& Label,
-	const FText& Value) const
+	const FText& Value)
 {
-	Panel->Slot()
+	Panel->AddSlot()
 	.AutoHeight()
 	.Padding(8.0f, 3.0f)
 	[

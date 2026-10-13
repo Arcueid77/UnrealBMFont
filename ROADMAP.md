@@ -1,5 +1,7 @@
 # Roadmap
 
+[简体中文](ROADMAP.zh-CN.md)
+
 The roadmap records direction, not a compatibility promise.
 
 ## Delivered in 0.3
@@ -16,7 +18,7 @@ The roadmap records direction, not a compatibility promise.
 - Share a runnable showcase with the automated package probes.
 - Document the public API, serialized schema and non-destructive beta upgrade path.
 - Require validation of the exact commit for every claimed engine build and independent review before publication.
-- Track acceptance and outstanding environment requirements in `Docs/ReleaseReadiness.md`.
+- Keep local acceptance records outside the repository; state verified compatibility and limitations in the release notes.
 
 ## After 1.0
 

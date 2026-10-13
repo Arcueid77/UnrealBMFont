@@ -1,5 +1,7 @@
 # Release checklist
 
+[简体中文](ReleaseChecklist.zh-CN.md)
+
 ## Scope and metadata
 
 - Choose the version, update `UnrealBMFont.uplugin`, and replace the changelog's `[Unreleased]` heading with `[version] - YYYY-MM-DD`, using the actual publication date only when cutting the release.
@@ -9,7 +11,7 @@
 
 ## Verification
 
-- Review `Docs/ReleaseReadiness.md` and resolve every required gate.
+- Complete every required gate below. Keep local acceptance records, review reports and generated evidence outside the repository.
 - Run `Scripts/TestRelease.ps1` on the exact clean release commit for every claimed engine build; at least one complete build is required. Require `Completed=true` and `ReleaseReady=true` in its evidence.
 - State the exact engine build and Win64 support scope. Additional UE minors and Launcher distributions need independent validation before they are claimed.
 - Review branding/material/ground-truth changes. Regenerate only after an intended change; never update reference PNGs just to make a failing comparison pass.
@@ -30,7 +32,7 @@
 - Confirm Runtime has no dependency on UnrealEd or AssetDefinition.
 - Confirm the test module is absent from UnrealGame targets.
 - Confirm the packaged descriptor has `Installed=true` and `EnabledByDefault=false`.
-- Confirm the package contains `LICENSE`, `THIRD_PARTY_NOTICES.md`, README/API/upgrade/compatibility documentation, `Content/M_BMFontPacked.uasset`, the showcase template and exactly its two generation helpers.
+- Confirm the package contains `LICENSE`, the informational Chinese license translation, both language versions of the notices and all documentation, `Content/M_BMFontPacked.uasset`, the showcase template and exactly its two generation helpers.
 - Confirm `BuildPlugin.ps1` reports that its automated release-file and personal/source-path audit passed.
 - Scan for credentials, private URLs, stale vendor names, and generated host-project files.
 

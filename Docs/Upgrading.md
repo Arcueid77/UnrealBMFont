@@ -1,5 +1,7 @@
 # Upgrading to 1.0
 
+[简体中文](Upgrading.zh-CN.md)
+
 1. Back up the project and preserve the source `.fnt` and atlas images.
 2. Close the Editor and replace the plugin with a package built for the destination
    engine, or rebuild from source. Do not mix editor DLLs and precompiled game libraries

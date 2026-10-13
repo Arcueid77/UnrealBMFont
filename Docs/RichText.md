@@ -1,5 +1,7 @@
 # Rich text
 
+[简体中文](RichText.zh-CN.md)
+
 `UBMFontRichTextBlock` is a `URichTextBlock` subclass that renders text runs with an imported BMFont asset instead of font faces. It is an adapter layered over the plain-text layout primitives; the plain-text core is unchanged.
 
 ## Usage

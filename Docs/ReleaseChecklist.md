@@ -18,7 +18,7 @@
 - Run `Scripts/BuildPlugin.ps1` for every claimed target platform.
 - Confirm UnrealEditor Development, UnrealGame Development, and UnrealGame Shipping all succeed without warnings introduced by the plugin.
 - Run `Scripts/TestPlugin.ps1`; archive `index.json` and the editor log.
-- Run the `UnrealBMFont.Render.*` suite on a GPU (no `-NullRHI`) and archive its report.
+- Repeat the full `UnrealBMFont.*` suite on a GPU (no `-NullRHI`), including the editor preview/thumbnail tests, and archive its report.
 - Run `Scripts/TestPackagedRuntime.ps1` with both default configurations and archive its `Evidence` directory.
 - Import `Samples/Minimal/Minimal.fnt` in a clean project and visually inspect `AB`, fallback, wrap, tint, shadow, and reimport.
 - Open the asset inspector on an imported font and verify the summary, atlas overlay, and glyph table.

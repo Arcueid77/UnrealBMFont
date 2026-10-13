@@ -6,18 +6,7 @@ All notable changes to Unreal BMFont are documented here. The project follows [S
 
 ## [Unreleased]
 
-### Changed
-
-- Completed English and Simplified Chinese documentation, including sample guides and contribution forms; local acceptance records and review reports remain outside the repository.
-
-### Fixed
-
-- The showcase explicitly enables the Editor-only Content Browser asset source and engine asset definitions.
-- Font inspector summary rows are attached to the panel, and atlas previews use the theme background tint so white glyphs remain visible.
-- Packed atlas previews and Content Browser thumbnails show the page's glyph coverage channels, including RGB glyphs with zero atlas alpha.
-- Imported fonts expose source-file registry metadata and enable the standard Content Browser reimport actions.
-
-## [1.0.0] - Unreleased
+## [1.0.0] - 2026-10-13
 
 ### Added
 
@@ -27,13 +16,20 @@ All notable changes to Unreal BMFont are documented here. The project follows [S
 - Packaged Development/Shipping GPU pixel probes using map-owned font references and normal dependency cooking.
 - Release validation for every claimed engine build, with source fingerprints and archived evidence; the initial scope is UE 5.8.0 source build / Win64.
 
+### Changed
+
+- Completed English and Simplified Chinese documentation, including sample guides and contribution forms; local acceptance records and review reports remain outside the repository.
+- Final release validation repeats the complete automation suite with a real GPU, including editor atlas-preview and thumbnail tests.
+
 ### Fixed
 
 - Existing brushes recover after a previously unavailable packed material becomes available.
 - Asset metric changes invalidate existing plain and Rich Text layouts, including cached widget trees.
 - Automation rejects incomplete results; strict GPU validation rejects NullRHI skips.
-
-This version is in release preparation. See [Release checklist](Docs/ReleaseChecklist.md) for the publication requirements. Local acceptance records remain outside the repository.
+- The showcase explicitly enables the Editor-only Content Browser asset source and engine asset definitions.
+- Font inspector summary rows are attached to the panel, and atlas previews use the theme background tint so white glyphs remain visible.
+- Packed atlas previews and Content Browser thumbnails show the page's glyph coverage channels, including RGB glyphs with zero atlas alpha.
+- Imported fonts expose source-file registry metadata and enable the standard Content Browser reimport actions.
 
 ## [0.3.0] - 2026-09-03
 

@@ -67,7 +67,7 @@ try {
 		& (Join-Path $PSScriptRoot 'TestPackagedRuntime.ps1') -EngineRoot $engine.Root -PluginPackage $package -WorkDirectory (Join-Path $run 'Runtime')
 		$project = Join-Path $run 'Runtime\Example\BMFontExample.uproject'
 		& (Join-Path $PSScriptRoot 'TestPlugin.ps1') -EngineRoot $engine.Root -Project $project -ReportDirectory (Join-Path $run 'Automation') -Strict
-		& (Join-Path $PSScriptRoot 'TestPlugin.ps1') -EngineRoot $engine.Root -Project $project -ReportDirectory (Join-Path $run 'GPU') -DisableNullRHI -TestFilter 'UnrealBMFont.Render' -Strict
+		& (Join-Path $PSScriptRoot 'TestPlugin.ps1') -EngineRoot $engine.Root -Project $project -ReportDirectory (Join-Path $run 'GPU') -DisableNullRHI -Strict
 		$summary.Engines += [ordered]@{
 			Version = $engine.Version; InstalledBuild = $engine.InstalledBuild
 			Directory = [IO.Path]::GetRelativePath($output, $run); Passed = $true

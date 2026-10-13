@@ -11,7 +11,7 @@ The roadmap records direction, not a compatibility promise.
 - Automate Development and Shipping cook, package, launch, and deterministic runtime verification.
 - Make GPU screenshot execution an explicit self-hosted CI capability.
 
-## 1.0 release preparation
+## Delivered in 1.0
 
 - Repair live asset/resource cache invalidation, including late material recovery.
 - Verify imported assets through save, reload, dependency cooking and packaged GPU rendering.
@@ -31,7 +31,7 @@ The roadmap records direction, not a compatibility promise.
 
 - Public API and serialized asset versioning policy.
 - Verified UE 5.8.0 source-build / Win64 compatibility, with exact engine build details in the release evidence.
-- Required CI gates for Editor, Development, Shipping, automation, cook, and packaged runtime smoke tests on every release commit.
+- Required validation gates for Editor, Development, Shipping, automation, cook, and packaged runtime smoke tests on every release commit, run in CI or through the same local release script with retained evidence.
 - Documented upgrade guidance for every breaking beta change.
 
 Bidirectional text and OpenType shaping are not planned for the core renderer: those jobs require a shaping engine and source font data, which BMFont does not contain.

@@ -88,7 +88,7 @@ pwsh ./Scripts/TestPackagedRuntime.ps1 `
 
 The script generates the [runnable showcase](../Examples/Showcase/README.md) outside the repository, imports and saves real fixtures, and cooks the showcase map's asset dependencies. It does not force-cook the plugin directory. Development and Shipping launch on a real GPU and compare plain, packed, multi-page and Rich Text pixels against independently specified fixture masks. Each configuration writes four probe PNGs, a full `Showcase.png`, and `result.json`; missing cases, mismatched pixels, missing assets and NullRHI all fail. An explicit `-WorkDirectory` must not already exist, preventing stale evidence from satisfying a new run. Keep the complete `Evidence` directory, including the import/build/cook logs.
 
-The default headless automation still skips GPU screenshot cases. Run a second pass with `-DisableNullRHI -TestFilter 'UnrealBMFont.Render' -Strict` to require actual rendering. `-Strict` also rejects warning results; every mode rejects incomplete reports.
+The default headless automation still skips GPU screenshot cases. Run a second full-suite pass with `-DisableNullRHI -Strict` to require actual rendering, including `UnrealBMFont.Editor.AtlasPreviewPackedChannels` for packed atlas previews and thumbnails. `-Strict` also rejects warning results; every mode rejects incomplete reports. Final release validation runs this full GPU pass rather than filtering only `UnrealBMFont.Render.*`.
 
 ## Final release validation
 

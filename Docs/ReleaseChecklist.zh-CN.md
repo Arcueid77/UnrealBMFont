@@ -18,7 +18,7 @@
 - 对每个声明支持的目标平台运行 `Scripts/BuildPlugin.ps1`。
 - 确认 UnrealEditor Development、UnrealGame Development 和 UnrealGame Shipping 全部成功，且没有插件新增的警告。
 - 运行 `Scripts/TestPlugin.ps1`，归档 `index.json` 和编辑器日志。
-- 在 GPU 上运行 `UnrealBMFont.Render.*`，不使用 `-NullRHI`，并归档报告。
+- 在 GPU 上重跑完整的 `UnrealBMFont.*` 套件，包括编辑器预览和缩略图测试，不使用 `-NullRHI`，并归档报告。
 - 按默认两种配置运行 `Scripts/TestPackagedRuntime.ps1`，归档其 `Evidence` 目录。
 - 在干净项目中导入 `Samples/Minimal/Minimal.fnt`，检查 `AB`、回退、换行、染色、阴影和重导入。
 - 打开已导入字体的资产检查器，确认摘要、图集字形框和字形表正常。

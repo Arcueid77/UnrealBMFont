@@ -88,7 +88,7 @@ pwsh ./Scripts/TestPackagedRuntime.ps1 `
 
 脚本在仓库外生成[可运行展示项目](../Examples/Showcase/README.zh-CN.md)，导入并保存真实样例，再 Cook 展示地图的资产依赖，不强制 Cook 插件目录。Development 和 Shipping 在真实 GPU 上启动，并将普通文本、packed、多页和 Rich Text 的像素与独立定义的样例掩码比较。每个配置输出四张探针 PNG、一张完整 `Showcase.png` 和 `result.json`；缺少案例、像素不符、资产缺失或使用 NullRHI 都会失败。显式传入的 `-WorkDirectory` 必须尚不存在，防止旧结果通过新一轮运行。应保留完整 `Evidence` 目录，包括导入、构建和 Cook 日志。
 
-默认无 GPU 自动化仍会跳过 GPU 截图案例。另运行一轮 `-DisableNullRHI -TestFilter 'UnrealBMFont.Render' -Strict`，要求真实渲染。`-Strict` 也会拒绝带警告的测试结果；任何模式都会拒绝不完整报告。
+默认无 GPU 自动化仍会跳过 GPU 截图案例。另用 `-DisableNullRHI -Strict` 重跑完整套件，要求真实渲染，包括验证 packed 图集预览和缩略图的 `UnrealBMFont.Editor.AtlasPreviewPackedChannels`。`-Strict` 也会拒绝带警告的测试结果；任何模式都会拒绝不完整报告。最终发布验证采用这一完整 GPU 阶段，而非仅筛选 `UnrealBMFont.Render.*`。
 
 ## 最终发布验证
 

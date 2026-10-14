@@ -6,7 +6,7 @@ All notable changes to Unreal BMFont are documented here. The project follows [S
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-10-13
+## [1.0.0] - Unreleased
 
 ### Added
 
